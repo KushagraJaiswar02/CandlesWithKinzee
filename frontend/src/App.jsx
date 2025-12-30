@@ -14,6 +14,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegistrationPage';
 import ProfilePage from './pages/AccountPage';
 import AdminDashboard from './pages/AdminPage';
+import EditProductPage from './pages/EditProductPage';
 import CheckoutPage from './pages/CheckOutpage';
 import AdminRoute from './components/AdminRoute';
 import NotFound from './pages/NotFound';
@@ -43,6 +44,11 @@ function App() {
                 <Route path="/admin" element={
                   <AdminRoute>
                     <AdminDashboard />
+                  </AdminRoute>
+                } />
+                <Route path="/admin/product/:id/edit" element={
+                  <AdminRoute>
+                    <EditProductPage />
                   </AdminRoute>
                 } />
                 <Route path="/checkout" element={<CheckoutPage />} />

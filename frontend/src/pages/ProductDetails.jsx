@@ -31,8 +31,12 @@ const renderStars = (rating) => {
 };
 
 
+import AuthContext from '../context/AuthContext';
+import { useContext } from 'react';
+
 const ProductDetailPage = () => {
     const { id } = useParams();
+    const { user } = useContext(AuthContext);
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -74,10 +78,20 @@ const ProductDetailPage = () => {
             />
 
             <div className="container mx-auto">
-                {/* Back to Shop Link */}
-                <Link to="/shop" className="flex items-center text-brown hover:text-flame mb-6 text-sm font-medium transition">
-                    &larr; Back to all Candles
-                </Link>
+                <div className="flex justify-between items-center mb-6">
+                    <Link to="/shop" className="flex items-center text-brown hover:text-flame text-sm font-medium transition">
+                        &larr; Back to all Candles
+                    </Link>
+
+                    {user && user.isAdmin && (
+                        <Link
+                            to={`/admin/product/${product._id}/edit`}
+                            className="bg-flame text-white px-4 py-2 rounded-lg font-bold hover:bg-brown transition shadow-md"
+                        >
+                            Edit Product
+                        </Link>
+                    )}
+                </div>
 
                 <div className="flex flex-col lg:flex-row gap-10 bg-white p-6 md:p-10 rounded-xl shadow-2xl border border-shadow/50">
 

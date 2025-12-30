@@ -13,6 +13,8 @@ const HistoryIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" hei
 const TrashIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>;
 const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>;
 
+import { Link } from 'react-router-dom';
+
 const AdminDashboard = () => {
     const [activeSection, setActiveSection] = useState('dashboard');
     const { user } = useContext(AuthContext);
@@ -39,7 +41,7 @@ const AdminDashboard = () => {
         if (activeSection === 'orders') fetchOrders();
         // if (activeSection === 'users') fetchUsers(); // User management not fully implemented yet
         if (activeSection === 'history') fetchDeletedProducts();
-    }, [activeSection]);
+    }, [activeSection, user.token]);
 
     const fetchStats = async () => {
         try {
@@ -65,9 +67,20 @@ const AdminDashboard = () => {
     const fetchDeletedProducts = async () => {
         try {
             const res = await fetch('/api/products/history', { headers: { Authorization: `Bearer ${user.token}` } });
+            if (res.status === 401) {
+                addToast('Session expired. Please login again.', 'error');
+                return;
+            }
             const data = await res.json();
-            setDeletedProducts(data);
-        } catch (error) { console.error(error); }
+            if (Array.isArray(data)) {
+                setDeletedProducts(data);
+            } else {
+                setDeletedProducts([]);
+            }
+        } catch (error) {
+            console.error(error);
+            setDeletedProducts([]);
+        }
     };
 
     const fetchOrders = async () => {
@@ -91,13 +104,20 @@ const AdminDashboard = () => {
                 body: JSON.stringify(productForm)
             });
 
+            if (res.status === 401) {
+                addToast('Session expired. Please login again.', 'error');
+                setLoading(false);
+                return;
+            }
+
             if (res.ok) {
                 addToast(editingProduct ? 'Product Updated' : 'Product Created', 'success');
                 setProductForm({ name: '', price: '', stock: '', category: '', description: '', image: '' });
                 setEditingProduct(null);
                 fetchProducts();
             } else {
-                addToast('Operation failed', 'error');
+                const data = await res.json();
+                addToast(data.message || 'Operation failed', 'error');
             }
         } catch (error) {
             addToast(error.message, 'error');
@@ -181,7 +201,56 @@ const AdminDashboard = () => {
 
                     <input type="number" placeholder="Price ($)" required className="p-3 border border-shadow rounded-lg" value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} />
                     <input type="number" placeholder="Stock Quantity" required className="p-3 border border-shadow rounded-lg" value={productForm.stock} onChange={e => setProductForm({ ...productForm, stock: e.target.value })} />
-                    <input type="text" placeholder="Image URL (Optional)" className="p-3 border border-shadow rounded-lg md:col-span-2" value={productForm.image} onChange={e => setProductForm({ ...productForm, image: e.target.value })} />
+                    {/* Image Upload Handlers */}
+                    <div className="md:col-span-2 space-y-2">
+                        <label className="block text-charcoal font-bold mb-1">Product Image</label>
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <input
+                                type="text"
+                                placeholder="Enter Image URL"
+                                className="flex-1 p-3 border border-shadow rounded-lg"
+                                value={productForm.image}
+                                onChange={e => setProductForm({ ...productForm, image: e.target.value })}
+                            />
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    id="image-file"
+                                    className="hidden"
+                                    onChange={async (e) => {
+                                        const file = e.target.files[0];
+                                        if (!file) return;
+                                        const formData = new FormData();
+                                        formData.append('image', file);
+                                        try {
+                                            setLoading(true);
+                                            const res = await fetch('/api/upload', {
+                                                method: 'POST',
+                                                body: formData,
+                                            });
+                                            const data = await res.text();
+                                            setProductForm({ ...productForm, image: data });
+                                            setLoading(false);
+                                        } catch (error) {
+                                            console.error(error);
+                                            setLoading(false);
+                                        }
+                                    }}
+                                />
+                                <label
+                                    htmlFor="image-file"
+                                    className="cursor-pointer bg-gray-200 text-charcoal px-4 py-3 rounded-lg hover:bg-gray-300 transition block text-center"
+                                >
+                                    Choose File
+                                </label>
+                            </div>
+                        </div>
+                        {productForm.image && (
+                            <div className="mt-2 text-sm text-green-600">
+                                Image Selected: {productForm.image}
+                            </div>
+                        )}
+                    </div>
                     <textarea placeholder="Description" required className="p-3 border border-shadow rounded-lg md:col-span-2 h-24" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })}></textarea>
 
                     <div className="md:col-span-2 flex gap-4">
@@ -218,7 +287,7 @@ const AdminDashboard = () => {
                                 <td className="p-3">${product.price.toFixed(2)}</td>
                                 <td className={`p-3 font-bold ${product.stock < 5 ? 'text-red-500' : 'text-green-600'}`}>{product.stock}</td>
                                 <td className="p-3 flex space-x-2">
-                                    <button onClick={() => handleEditClick(product)} className="text-blue-500 hover:text-blue-700" title="Edit"><EditIcon /></button>
+                                    <Link to={`/admin/product/${product._id}/edit`} className="text-blue-500 hover:text-blue-700" title="Edit"><EditIcon /></Link>
                                     <button onClick={() => handleDeleteProduct(product._id)} className="text-red-500 hover:text-red-700" title="Delete"><TrashIcon /></button>
                                 </td>
                             </tr>
