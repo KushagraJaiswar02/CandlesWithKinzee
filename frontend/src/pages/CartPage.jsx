@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO.jsx';
 
 // Placeholder for Trash Icon
 const TrashIcon = () => (
@@ -12,7 +13,7 @@ const TrashIcon = () => (
 // Placeholder Cart Item Component
 const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
     return (
-        <motion.div 
+        <motion.div
             className="flex items-center justify-between p-4 mb-4 bg-beige rounded-lg shadow-sm border border-shadow/50"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -20,9 +21,9 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
             transition={{ duration: 0.3 }}
         >
             <div className="flex items-center space-x-4">
-                <img 
-                    src={item.image} 
-                    alt={item.name} 
+                <img
+                    src={item.image}
+                    alt={item.name}
                     className="w-16 h-16 object-cover rounded-md border border-shadow"
                     onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/64x64/8B5E3C/FFF7E6?text=C" }}
                 />
@@ -41,14 +42,14 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
                     className="w-16 p-2 border border-shadow rounded-lg text-center text-charcoal focus:ring-flame focus:border-flame"
                     onChange={(e) => onUpdateQuantity(item.id, parseInt(e.target.value) || 1)}
                 />
-                
+
                 {/* Total Price for Item */}
                 <p className="text-lg font-bold text-flame hidden sm:block">
                     ${(item.price * item.quantity).toFixed(2)}
                 </p>
 
                 {/* Remove Button */}
-                <motion.button 
+                <motion.button
                     className="p-2 text-charcoal hover:text-brown transition duration-200"
                     onClick={() => onRemove(item.id)}
                     whileHover={{ scale: 1.1 }}
@@ -74,7 +75,7 @@ const CartPage = () => {
     };
 
     const handleUpdateQuantity = (id, newQuantity) => {
-        setCartItems(cartItems.map(item => 
+        setCartItems(cartItems.map(item =>
             item.id === id ? { ...item, quantity: newQuantity } : item
         ));
     };
@@ -91,22 +92,23 @@ const CartPage = () => {
 
 
     return (
-        <motion.div 
+        <motion.div
             className="min-h-screen bg-beige p-4 md:p-12"
             variants={pageVariants}
             initial="initial"
             animate="animate"
         >
+            <SEO title="Shopping Cart" description="Review your selected items and proceed to checkout." />
             <div className="container mx-auto">
                 <h1 className="text-4xl font-extrabold text-brown mb-8 text-center md:text-left">
                     Your Shopping Cart 🛒
                 </h1>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    
+
                     {/* 1. Item List Area */}
                     <div className="lg:w-2/3">
-                        <motion.div 
+                        <motion.div
                             className="bg-white p-6 rounded-xl shadow-xl border border-shadow/50"
                             layout
                         >
@@ -129,12 +131,12 @@ const CartPage = () => {
                             )}
                         </motion.div>
                     </div>
-                    
+
                     {/* 2. Cart Summary/Checkout Area (Sticky on Desktop) */}
                     <div className="lg:w-1/3">
                         <div className="bg-white p-6 rounded-xl shadow-xl border border-shadow/50 sticky top-24">
                             <h2 className="text-2xl font-bold text-brown mb-4 border-b pb-3 border-shadow/50">Order Summary</h2>
-                            
+
                             <div className="space-y-3 text-charcoal">
                                 <div className="flex justify-between">
                                     <span className="text-md">Subtotal:</span>
@@ -144,20 +146,20 @@ const CartPage = () => {
                                     <span className="text-md">Shipping:</span>
                                     <span className="font-semibold text-primary">{shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}</span>
                                 </div>
-                                
+
                                 <div className="flex justify-between pt-3">
                                     <span className="text-2xl font-extrabold text-charcoal">Total Cost:</span>
                                     <span className="text-2xl font-extrabold text-flame">${total.toFixed(2)}</span>
                                 </div>
                             </div>
-                            
+
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.3 }}
                             >
                                 <Link to="/checkout">
-                                    <button 
+                                    <button
                                         disabled={cartItems.length === 0}
                                         className="w-full mt-6 py-3 bg-primary text-charcoal font-bold text-lg rounded-lg shadow-xl hover:bg-flame hover:text-white transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
@@ -165,7 +167,7 @@ const CartPage = () => {
                                     </button>
                                 </Link>
                             </motion.div>
-                            
+
                         </div>
                     </div>
                 </div>

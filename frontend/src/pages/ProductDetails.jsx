@@ -1,8 +1,9 @@
 // src/ProductDetailPage.jsx
 
 import React from 'react';
-import { useParams , Link} from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO.jsx';
 
 // Placeholder for Add to Cart Icon
 const CartIcon = () => (
@@ -11,7 +12,7 @@ const CartIcon = () => (
 
 // Helper function for placeholder stars
 const renderStars = (rating) => {
-    const safeRating = rating || 0; 
+    const safeRating = rating || 0;
     const roundedRating = Math.round(safeRating * 2) / 2;
 
     return (
@@ -45,7 +46,7 @@ const ProductDetailPage = () => {
         stock: 15,
         image: `https://res.cloudinary.com/demo/image/fetch/w_600,h_800,c_fill,g_auto/f_auto/product-${id}.jpg` // Cloudinary structure
     };
-    
+
     // Framer Motion variant for page entry
     const pageVariants = {
         initial: { opacity: 0, y: 20 },
@@ -53,12 +54,18 @@ const ProductDetailPage = () => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             className="min-h-screen bg-beige p-4 md:p-12"
             variants={pageVariants}
             initial="initial"
             animate="animate"
         >
+            <SEO
+                title={product.name}
+                description={product.description}
+                image={product.image}
+            />
+
             <div className="container mx-auto">
                 {/* Back to Shop Link */}
                 <Link to="/shop" className="flex items-center text-brown hover:text-flame mb-6 text-sm font-medium transition">
@@ -66,7 +73,7 @@ const ProductDetailPage = () => {
                 </Link>
 
                 <div className="flex flex-col lg:flex-row gap-10 bg-white p-6 md:p-10 rounded-xl shadow-2xl border border-shadow/50">
-                    
+
                     {/* 1. Image Gallery (Placeholder) */}
                     <div className="lg:w-1/2">
                         <motion.img
@@ -83,7 +90,7 @@ const ProductDetailPage = () => {
                     {/* 2. Product Details */}
                     <div className="lg:w-1/2 space-y-6">
                         <h1 className="text-4xl font-extrabold text-brown font-serif">{product.name}</h1>
-                        
+
                         {/* Rating and Reviews */}
                         <div className="flex items-center space-x-4 border-b border-shadow/50 pb-4">
                             {renderStars(product.rating)}
@@ -110,14 +117,14 @@ const ProductDetailPage = () => {
 
                         {/* Add to Cart/Quantity Controls */}
                         <div className="flex space-x-4 pt-4 border-t border-shadow/50">
-                            <input 
-                                type="number" 
-                                defaultValue="1" 
-                                min="1" 
+                            <input
+                                type="number"
+                                defaultValue="1"
+                                min="1"
                                 max={product.stock}
                                 className="w-20 p-3 border border-shadow rounded-lg text-center text-charcoal focus:ring-primary focus:border-primary"
                             />
-                            
+
                             <motion.button
                                 className="flex-1 flex items-center justify-center py-3 bg-primary text-charcoal font-bold text-lg rounded-lg shadow-xl hover:bg-flame hover:text-white transition duration-200"
                                 whileHover={{ scale: 1.02 }}

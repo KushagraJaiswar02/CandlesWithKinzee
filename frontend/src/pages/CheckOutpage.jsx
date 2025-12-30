@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import SEO from '../components/SEO.jsx';
 
 // Placeholder Icons
 const LockIcon = () => '🔒'; // For security
@@ -12,7 +13,7 @@ const PaymentIcon = () => '💳'; // For payment
 const CheckoutPage = () => {
     // Simple state to simulate checkout steps
     const [currentStep, setCurrentStep] = useState(1);
-    
+
     // Dummy Order Summary Data (Ideally passed from CartPage or Context API)
     const subtotal = 36.99;
     const shipping = 5.00;
@@ -38,7 +39,7 @@ const CheckoutPage = () => {
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-4">
             <h2 className="text-2xl font-bold text-brown flex items-center space-x-2">{LocationIcon()} <span>Shipping Address</span></h2>
             [cite_start]<p className="text-charcoal/70 text-sm">Location tracking helps with shipping estimation and address autofill[cite: 13].</p>
-            
+
             <input type="text" placeholder="Full Name" className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" />
             <input type="text" placeholder="Address Line 1" className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" />
             <input type="text" placeholder="City" className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" />
@@ -46,8 +47,8 @@ const CheckoutPage = () => {
                 <input type="text" placeholder="Zip/Postal Code" className="w-1/2 p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" />
                 <input type="text" placeholder="Country" className="w-1/2 p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" />
             </div>
-            
-            <motion.button 
+
+            <motion.button
                 className="w-full py-3 bg-primary text-charcoal font-bold rounded-lg hover:bg-flame hover:text-white transition"
                 onClick={() => setCurrentStep(2)}
                 whileHover={{ scale: 1.01 }}
@@ -76,13 +77,13 @@ const CheckoutPage = () => {
             </div>
 
             <div className="flex space-x-4">
-                <button 
+                <button
                     className="w-1/3 py-3 border border-brown text-brown font-bold rounded-lg hover:bg-beige transition"
                     onClick={() => setCurrentStep(1)}
                 >
                     &larr; Back to Shipping
                 </button>
-                <motion.button 
+                <motion.button
                     className="w-2/3 py-3 bg-flame text-white font-bold rounded-lg hover:bg-brown transition"
                     onClick={() => setCurrentStep(3)}
                     whileHover={{ scale: 1.01 }}
@@ -98,7 +99,7 @@ const CheckoutPage = () => {
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-6">
             <h2 className="text-2xl font-bold text-brown">Review & Place Order</h2>
             [cite_start]<p className="text-charcoal/70 text-sm">Final check before placing your order. Security is Flipkart-like secure checkout and encryption for user data[cite: 13].</p>
-            
+
             {/* Review Sections */}
             <div className="grid md:grid-cols-2 gap-6">
                 <div className="p-4 bg-beige rounded-lg border border-shadow/50">
@@ -115,7 +116,7 @@ const CheckoutPage = () => {
             </div>
 
             {/* Final Place Order Button */}
-            <motion.button 
+            <motion.button
                 className="w-full py-4 bg-flame text-white font-extrabold text-xl rounded-lg shadow-xl hover:bg-brown transition"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -139,12 +140,13 @@ const CheckoutPage = () => {
 
 
     return (
-        <motion.div 
+        <motion.div
             className="min-h-screen bg-beige p-4 md:p-12"
             variants={pageVariants}
             initial="initial"
             animate="animate"
         >
+            <SEO title="Secure Checkout" description="Complete your purchase securely." robots="noindex, nofollow" />
             <div className="container mx-auto">
                 <Link to="/cart" className="flex items-center text-brown hover:text-flame mb-4 text-sm font-medium transition">
                     &larr; Back to Cart
@@ -155,10 +157,10 @@ const CheckoutPage = () => {
                 </h1>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    
+
                     {/* 1. Main Form Area */}
                     <div className="lg:w-3/5 bg-white p-6 md:p-8 rounded-xl shadow-2xl border border-shadow/50">
-                        
+
                         {/* Step Indicator */}
                         <div className="flex justify-between mb-8 pb-4 border-b border-shadow/50">
                             <StepIndicator step={1} label="Shipping" />
@@ -171,12 +173,12 @@ const CheckoutPage = () => {
                             {renderFormContent()}
                         </div>
                     </div>
-                    
+
                     {/* 2. Order Summary Sidebar */}
                     <div className="lg:w-2/5 h-fit">
                         <div className="bg-white p-6 rounded-xl shadow-xl border border-shadow/50 sticky top-24">
                             <h2 className="text-2xl font-bold text-brown mb-4 border-b pb-3 border-shadow/50">Order Summary</h2>
-                            
+
                             <div className="space-y-3 text-charcoal">
                                 <div className="flex justify-between">
                                     <span className="text-md">Subtotal:</span>
@@ -190,7 +192,7 @@ const CheckoutPage = () => {
                                     <span className="text-md">Taxes (8%):</span>
                                     <span className="font-semibold">${taxes.toFixed(2)}</span>
                                 </div>
-                                
+
                                 <div className="flex justify-between pt-3">
                                     <span className="text-2xl font-extrabold text-charcoal">Order Total:</span>
                                     <span className="text-2xl font-extrabold text-flame">${total.toFixed(2)}</span>

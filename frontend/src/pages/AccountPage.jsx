@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import SEO from '../components/SEO.jsx';
 
 // Placeholder icons (using emojis for simplicity and aesthetic fit)
 const ProfileIcon = () => '👤';
@@ -25,7 +26,7 @@ const ProfilePage = () => {
         <div className="space-y-6">
             <h2 className="text-2xl font-bold text-charcoal">Your Recent Orders</h2>
             <p className="text-shadow italic">Keep track of your purchases.</p>
-            
+
             {/* Order Card Placeholder 1 */}
             <div className="p-4 bg-beige rounded-lg border border-shadow/50 shadow-sm">
                 <p className="font-semibold text-brown">Order #KL-905284</p>
@@ -48,7 +49,7 @@ const ProfilePage = () => {
         <div className="space-y-4">
             <h2 className="text-2xl font-bold text-charcoal">Personal Information</h2>
             <p className="text-shadow italic">Manage your contact details and password (Password hashing protects this).</p>
-            
+
             <div className="p-4 bg-beige rounded-lg border border-shadow/50">
                 <p className="font-semibold text-brown">Name: Jane Doe</p>
                 <p className="text-sm text-charcoal">Email: jane.doe@example.com</p>
@@ -63,7 +64,7 @@ const ProfilePage = () => {
         <div className="space-y-4">
             <h2 className="text-2xl font-bold text-charcoal">Shipping Addresses</h2>
             <p className="text-shadow italic">For fast and easy checkout (Location tracking helps here).</p>
-            
+
             <div className="p-4 bg-beige rounded-lg border border-shadow/50">
                 <p className="font-semibold text-brown">Home:</p>
                 <p className="text-sm text-charcoal">123 Candlelight Lane, Cityville, 45678</p>
@@ -78,7 +79,7 @@ const ProfilePage = () => {
         switch (activeSection) {
             case 'profile': return <ProfileDetails />;
             case 'addresses': return <Addresses />;
-            case 'orders': 
+            case 'orders':
             default: return <OrderHistory />;
         }
     };
@@ -87,8 +88,8 @@ const ProfilePage = () => {
         <button
             onClick={() => setActiveSection(section)}
             className={`flex items-center space-x-3 w-full p-3 rounded-lg font-medium transition duration-200 
-                ${activeSection === section 
-                    ? 'bg-flame text-white shadow-md' 
+                ${activeSection === section
+                    ? 'bg-flame text-white shadow-md'
                     : 'text-charcoal hover:bg-beige hover:text-brown'
                 }`
             }
@@ -99,19 +100,20 @@ const ProfilePage = () => {
     );
 
     return (
-        <motion.div 
+        <motion.div
             className="min-h-screen bg-beige p-4 md:p-12"
             variants={pageVariants}
             initial="initial"
             animate="animate"
         >
+            <SEO title="My Account" description="Manage your CandlesWithKinzee profile and orders." />
             <div className="container mx-auto">
                 <h1 className="text-4xl font-extrabold text-brown mb-8 text-center md:text-left">
                     My Account {ProfileIcon()}
                 </h1>
 
                 <div className="flex flex-col lg:flex-row gap-8">
-                    
+
                     {/* 1. Sidebar Navigation */}
                     <div className="lg:w-1/4 bg-white p-6 rounded-xl shadow-xl border border-shadow/50 h-fit">
                         <h2 className="text-xl font-bold text-brown mb-4">Dashboard</h2>
@@ -122,9 +124,9 @@ const ProfilePage = () => {
                             <NavButton section="settings" icon={SettingsIcon()} label="Settings" />
                         </nav>
                     </div>
-                    
+
                     {/* 2. Main Content Area */}
-                    <motion.div 
+                    <motion.div
                         key={activeSection} // Key change ensures Framer Motion re-animates content on tab switch
                         className="lg:w-3/4 bg-white p-8 rounded-xl shadow-xl border border-shadow/50"
                         initial={{ opacity: 0, x: 20 }}
