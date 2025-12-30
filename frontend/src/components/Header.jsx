@@ -35,8 +35,8 @@ const Header = () => {
                         {/* KEY CHANGE: Uses a large, bold, font-serif style for elegance.
                           The 'K' and 'L' are highlighted using the 'flame' color for branding.
                         */}
-                        <span className="text-4xl font-serif font-extrabold text-brown tracking-wide">
-                            <span className="text-flame">K</span>indle<span className="text-flame">L</span>ight
+                        <span className="text-3xl font-serif font-extrabold text-brown tracking-wide">
+                            <span className="text-flame">Candles</span>With<span className="text-flame">Kinzee</span>
                         </span>
                     </Link>
 
