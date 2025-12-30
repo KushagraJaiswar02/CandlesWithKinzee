@@ -18,7 +18,12 @@ const importData = async () => {
         await Product.deleteMany();
         await User.deleteMany();
 
-        const createdUsers = await User.create(users); // Model middleware will hash passwords
+        // Create users one by one to ensure pre-save middleware (hashing) runs
+        const createdUsers = [];
+        for (const user of users) {
+            const newUser = await User.create(user);
+            createdUsers.push(newUser);
+        }
         const adminUser = createdUsers[0]._id;
 
         const sampleProducts = products.map(product => {

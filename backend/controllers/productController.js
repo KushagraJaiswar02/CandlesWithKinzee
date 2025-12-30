@@ -11,7 +11,7 @@ const getProducts = async (req, res) => {
         }
     } : {};
 
-    const products = await Product.find({ ...keyword });
+    const products = await Product.find({ ...keyword, isDeleted: false });
     res.json(products);
 };
 
@@ -35,7 +35,8 @@ const deleteProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (product) {
-        await product.deleteOne();
+        product.isDeleted = true;
+        await product.save();
         res.json({ message: 'Product removed' });
     } else {
         res.status(404).json({ message: 'Product not found' });
@@ -46,15 +47,25 @@ const deleteProduct = async (req, res) => {
 // @route   POST /api/products
 // @access  Private/Admin
 const createProduct = async (req, res) => {
+    console.log('createProduct called with body:', req.body);
+    const { name, price, description, image, category, stock } = req.body;
+
+    // Basic Validation
+    if (!name || !price || !category) {
+        res.status(400);
+        throw new Error('Please fill in all required fields');
+    }
+
     const product = new Product({
-        name: 'Sample name',
-        price: 0,
+        name,
+        price,
         user: req.user._id,
-        image: '/images/sample.jpg',
-        category: 'Sample category',
-        stock: 0,
+        image: image || '/images/sample.jpg', // Default if not provided
+        category,
+        stock: stock || 0,
         numReviews: 0,
-        description: 'Sample description'
+        description: description || 'No description',
+        isDeleted: false
     });
 
     const createdProduct = await product.save();
@@ -84,10 +95,20 @@ const updateProduct = async (req, res) => {
     }
 };
 
+// @desc    Fetch deleted products (History)
+// @route   GET /api/products/history
+// @access  Private/Admin
+const getDeletedProducts = async (req, res) => {
+    // Return ALL products ever added (both active and deleted), sorted by creation date
+    const products = await Product.find({}).sort({ createdAt: -1 });
+    res.json(products);
+};
+
 module.exports = {
     getProducts,
     getProductById,
     deleteProduct,
     createProduct,
-    updateProduct
+    updateProduct,
+    getDeletedProducts
 };
