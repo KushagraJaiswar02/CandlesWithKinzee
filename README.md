@@ -1,8 +1,8 @@
-# 🕯️ KindleLight E-commerce Platform
+# 🕯️ CandlesWithKinzee E-commerce Platform
 
 ## 🌟 Project Overview
 
-This project involves creating a modern, responsive, and secure e-commerce platform dedicated to selling handcrafted candles. [cite_start]The goal is to migrate the client's business from an Instagram-only presence to a professional, scalable website, providing a smooth, aesthetic shopping experience similar in structure and flow to platforms like Flipkart[cite: 3, 5, 8].
+This project involves creating a modern, responsive, and secure e-commerce platform dedicated to selling handcrafted candles. The goal is to migrate the client's business from an Instagram-only presence to a professional, scalable website, providing a smooth, aesthetic shopping experience similar in structure and flow to platforms like Flipkart.
 
 [cite_start]The design emphasizes a **minimalist and elegant candle-themed aesthetic** with a consistent warm color palette[cite: 5, 23, 41].
 
