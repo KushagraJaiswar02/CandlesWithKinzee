@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// We no longer need to import the PNG logo.
+import AuthContext from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const { user, logout } = React.useContext(AuthContext);
+    const { addToast } = useToast();
 
     // Scroll detection for Glassmorphism
     useEffect(() => {
@@ -23,22 +25,18 @@ const Header = () => {
     const ShoppingCartIcon = () => '🛒';
     const UserIcon = () => '👤';
 
-    // Base styles for navigation links
-    const baseLinkStyle = 'px-3 py-2 text-charcoal font-medium hover:bg-beige transition duration-200 rounded-md relative group';
+    const handleLogout = () => {
+        logout();
+        addToast('Logged out successfully', 'info');
+    };
 
-    // Active style for NavLink with animated underline
-    const activeLinkStyle = ({ isActive }) => (
-        isActive
-            ? 'px-3 py-2 text-flame font-bold relative'
-            : baseLinkStyle
-    );
-
-    const HoverUnderline = () => (
-        <motion.div
-            className="absolute bottom-0 left-0 w-full h-0.5 bg-flame"
-            layoutId="underline"
-        />
-    );
+    // Filter links based on role
+    const navLinks = [
+        { path: '/', label: 'Home' },
+        { path: '/shop', label: 'Shop' },
+        { path: '/profile', label: 'Profile', auth: true }, // Only for logged in
+        { path: '/admin', label: 'Admin', admin: true },    // Only for admin
+    ];
 
     return (
         <motion.header
@@ -65,21 +63,26 @@ const Header = () => {
 
                     {/* Desktop Navigation Links (Hidden on Mobile) */}
                     <nav className="hidden md:flex items-center space-x-2 lg:space-x-6">
-                        {['/', '/shop', '/profile', '/admin'].map((path) => (
-                            <NavLink key={path} to={path} className={({ isActive }) => `px-3 py-2 font-medium transition duration-200 rounded-md relative ${isActive ? 'text-flame font-bold' : 'text-charcoal hover:text-flame'}`}>
-                                {({ isActive }) => (
-                                    <>
-                                        {path === '/' ? 'Home' : path.substring(1).charAt(0).toUpperCase() + path.substring(2)}
-                                        {isActive && (
-                                            <motion.div
-                                                className="absolute bottom-0 left-0 w-full h-0.5 bg-flame"
-                                                layoutId="navbar-underline"
-                                            />
-                                        )}
-                                    </>
-                                )}
-                            </NavLink>
-                        ))}
+                        {navLinks.map((link) => {
+                            if (link.auth && !user) return null;
+                            if (link.admin && (!user || !user.isAdmin)) return null;
+
+                            return (
+                                <NavLink key={link.path} to={link.path} className={({ isActive }) => `px-3 py-2 font-medium transition duration-200 rounded-md relative ${isActive ? 'text-flame font-bold' : 'text-charcoal hover:text-flame'}`}>
+                                    {({ isActive }) => (
+                                        <>
+                                            {link.label}
+                                            {isActive && (
+                                                <motion.div
+                                                    className="absolute bottom-0 left-0 w-full h-0.5 bg-flame"
+                                                    layoutId="navbar-underline"
+                                                />
+                                            )}
+                                        </>
+                                    )}
+                                </NavLink>
+                            );
+                        })}
                     </nav>
 
                     {/* Right-Side Icons & CTAs (Desktop) */}
@@ -93,25 +96,31 @@ const Header = () => {
                         >
                             <ShoppingCartIcon />
                             {/* Cart Item Count */}
-                            <motion.span
+                            {/* <motion.span
                                 key="cart-count"
                                 initial={{ scale: 0 }} animate={{ scale: 1 }}
                                 className="absolute top-0 right-0 inline-flex items-center justify-center h-4 w-4 text-[10px] font-bold leading-none text-white transform translate-x-1/3 -translate-y-1/3 bg-flame rounded-full"
                             >
                                 3
-                            </motion.span>
+                            </motion.span> */}
                         </Link>
 
-                        {/* Login CTA */}
-                        <Link to="/login">
-                            <motion.button
-                                className="flex items-center py-2 px-4 text-charcoal bg-primary font-semibold rounded-lg hover:bg-flame hover:text-white transition duration-200 shadow-md"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                            >
-                                {UserIcon()} <span className="ml-1">Sign In</span>
-                            </motion.button>
-                        </Link>
+                        {user ? (
+                            <div className="flex items-center gap-4">
+                                <span className="text-sm font-semibold text-brown">Hi, {user.name}</span>
+                                <button onClick={handleLogout} className="text-sm text-charcoal hover:text-flame underline">Logout</button>
+                            </div>
+                        ) : (
+                            <Link to="/login">
+                                <motion.button
+                                    className="flex items-center py-2 px-4 text-charcoal bg-primary font-semibold rounded-lg hover:bg-flame hover:text-white transition duration-200 shadow-md"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    {UserIcon()} <span className="ml-1">Sign In</span>
+                                </motion.button>
+                            </Link>
+                        )}
                     </div>
 
                     {/* Mobile Menu Button (Hidden on Desktop) */}
@@ -137,20 +146,18 @@ const Header = () => {
                         className="md:hidden bg-white border-t border-shadow/50 overflow-hidden"
                     >
                         <div className="px-4 pt-2 pb-3 space-y-1 flex flex-col">
-                            <Link to="/" className="block px-3 py-2 text-charcoal hover:bg-beige rounded-md font-medium" onClick={() => setIsOpen(false)}>Home</Link>
-                            <Link to="/shop" className="block px-3 py-2 text-charcoal hover:bg-beige rounded-md font-medium" onClick={() => setIsOpen(false)}>Shop</Link>
-
-                            <div className="pt-2 border-t border-shadow space-y-2">
-                                <Link to="/cart" className="flex items-center px-3 py-2 text-charcoal font-medium hover:bg-beige rounded-md" onClick={() => setIsOpen(false)}>
-                                    {ShoppingCartIcon()} <span className="ml-2">Cart (3)</span>
-                                </Link>
-                                <Link to="/login" className="flex items-center px-3 py-2 text-charcoal font-medium hover:bg-beige rounded-md" onClick={() => setIsOpen(false)}>
-                                    {UserIcon()} <span className="ml-2">Sign In / Register</span>
-                                </Link>
-                                <Link to="/admin" className="block px-3 py-2 text-charcoal font-medium border border-shadow rounded-md hover:bg-beige" onClick={() => setIsOpen(false)}>
-                                    Admin Dashboard
-                                </Link>
-                            </div>
+                            {navLinks.map((link) => {
+                                if (link.auth && !user) return null;
+                                if (link.admin && (!user || !user.isAdmin)) return null;
+                                return (
+                                    <Link key={link.path} to={link.path} className="block px-3 py-2 text-charcoal hover:bg-beige rounded-md font-medium" onClick={() => setIsOpen(false)}>{link.label}</Link>
+                                );
+                            })}
+                            {user ? (
+                                <button onClick={() => { handleLogout(); setIsOpen(false); }} className="block w-full text-left px-3 py-2 text-charcoal hover:bg-beige rounded-md font-medium">Logout</button>
+                            ) : (
+                                <Link to="/login" className="flex items-center px-3 py-2 text-charcoal font-medium hover:bg-beige rounded-md" onClick={() => setIsOpen(false)}>Sign In</Link>
+                            )}
                         </div>
                     </motion.div>
                 )}

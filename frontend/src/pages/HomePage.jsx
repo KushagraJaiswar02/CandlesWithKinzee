@@ -1,6 +1,6 @@
 // src/HomePage.jsx
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 // FIX: Change '../components/...' back to './components/...'
 import SEO from '../components/SEO.jsx';
@@ -9,13 +9,26 @@ import ProductCard from '../components/ProductCard.jsx';
 import { Link } from 'react-router-dom';
 
 const HomePage = () => {
-    // Dummy Data for featured products (replace with actual data fetching later)
-    const featuredProducts = [
-        { id: 'p1', name: 'Warm Vanilla Glow', price: 19.99, image: 'vanilla.jpg' },
-        { id: 'p2', name: 'Sandalwood Serenity', price: 24.50, image: 'sandalwood.jpg' },
-        { id: 'p3', name: 'Fresh Linen Breeze', price: 17.00, image: 'linen.jpg' },
-        { id: 'p4', name: 'Midnight Musk', price: 29.99, image: 'musk.jpg' },
-    ];
+    // State for featured products
+    const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                // Take first 8 products for featured section
+                setFeaturedProducts(data.slice(0, 8));
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     // Dummy Data for candle types/categories
     const candleTypes = [
@@ -109,13 +122,13 @@ const HomePage = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {featuredProducts.map((product, i) => (
                         <motion.div
-                            key={product.id}
+                            key={product._id}
                             initial={{ opacity: 0, y: 50 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.1, duration: 0.5 }}
                         >
-                            <Link to={`/product/${product.id}`}>
+                            <Link to={`/product/${product._id}`}>
                                 <ProductCard product={product} />
                             </Link>
                         </motion.div>
@@ -156,12 +169,12 @@ const HomePage = () => {
                         <motion.div variants={itemVariants} className="p-6 bg-white rounded-xl shadow-lg border-t-4 border-flame hover:shadow-2xl transition duration-300">
                             <span className="text-4xl block mb-3">🔒</span>
                             <h3 className="text-xl font-semibold text-charcoal mb-2">Secure Transactions</h3>
-                            [cite_start]<p className="text-shadow">Payment encryption and secure checkout guaranteed[cite: 9, 12, 37].</p>
+                            <p className="text-shadow">Payment encryption and secure checkout guaranteed.</p>
                         </motion.div>
                         <motion.div variants={itemVariants} className="p-6 bg-white rounded-xl shadow-lg border-t-4 border-flame hover:shadow-2xl transition duration-300">
                             <span className="text-4xl block mb-3">🚚</span>
                             <h3 className="text-xl font-semibold text-charcoal mb-2">Fast & Reliable</h3>
-                            [cite_start]<p className="text-shadow">Built to be fast and mobile-friendly[cite: 7, 24].</p>
+                            <p className="text-shadow">Built to be fast and mobile-friendly.</p>
                         </motion.div>
                     </motion.div>
                 </div>

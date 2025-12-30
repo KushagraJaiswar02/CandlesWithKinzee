@@ -15,38 +15,46 @@ import RegisterPage from './pages/RegistrationPage';
 import ProfilePage from './pages/AccountPage';
 import AdminDashboard from './pages/AdminPage';
 import CheckoutPage from './pages/CheckOutpage';
+import AdminRoute from './components/AdminRoute';
 import NotFound from './pages/NotFound';
 
-// Toast Provider temporarily disabled due to build issues
-// import { ToastProvider } from './context/ToastContext';
+// Toast Provider
+import { ToastProvider } from './context/ToastContext';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
     <Router>
-      {/* <ToastProvider> */}
-      <div className="flex flex-col min-h-screen bg-beige font-sans">
+      <AuthProvider>
+        <ToastProvider>
+          <div className="flex flex-col min-h-screen bg-beige font-sans">
 
-        <Navbar />
+            <Navbar />
 
-        <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/shop" element={<ProductListingPage />} />
-            <Route path="/product/:id" element={<ProductDetailPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
+            <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/shop" element={<ProductListingPage />} />
+                <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/admin" element={
+                  <AdminRoute>
+                    <AdminDashboard />
+                  </AdminRoute>
+                } />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
 
-        <Footer />
+            <Footer />
 
-      </div>
-      {/* </ToastProvider> */}
+          </div>
+        </ToastProvider>
+      </AuthProvider>
     </Router>
   );
 }

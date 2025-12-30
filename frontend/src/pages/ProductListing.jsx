@@ -1,6 +1,6 @@
 // src/ProductListingPage.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard.jsx';
@@ -8,17 +8,23 @@ import SEO from '../components/SEO.jsx';
 
 const ProductListingPage = () => {
     // Dummy Data for Product Display
-    const products = [
-        { id: 'p1', name: 'Warm Vanilla Glow', price: 19.99, scent: 'Sweet', type: 'Soy Wax', rating: 4.8 },
-        { id: 'p2', name: 'Sandalwood Serenity', price: 24.50, scent: 'Earthy', type: 'Aromatherapy', rating: 4.5 },
-        { id: 'p3', name: 'Fresh Linen Breeze', price: 17.00, scent: 'Clean', type: 'Pillar', rating: 4.2 },
-        { id: 'p4', name: 'Midnight Musk', price: 29.99, scent: 'Musky', type: 'Soy Wax', rating: 4.9 },
-        { id: 'p5', name: 'Pumpkin Spice Harvest', price: 22.00, scent: 'Spicy', type: 'Seasonal', rating: 4.6 },
-        { id: 'p6', name: 'Ocean Mist Relax', price: 18.50, scent: 'Fresh', type: 'Votive', rating: 4.1 },
-        { id: 'p7', name: 'Lavender Dream', price: 21.00, scent: 'Floral', type: 'Aromatherapy', rating: 4.7 },
-        { id: 'p8', name: 'Cinnamon Hearth', price: 19.50, scent: 'Spicy', type: 'Seasonal', rating: 4.4 },
-        { id: 'p9', name: 'Citrus Zest', price: 15.00, scent: 'Fruity', type: 'Votive', rating: 4.3 },
-    ];
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await fetch('/api/products');
+                const data = await res.json();
+                setProducts(data);
+                setLoading(false);
+            } catch (error) {
+                console.error(error);
+                setLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
 
     const [filterOpen, setFilterOpen] = useState(false);
 
@@ -167,8 +173,8 @@ const ProductListingPage = () => {
                             animate="visible"
                         >
                             {products.map(product => (
-                                <motion.div key={product.id} variants={itemVariants}>
-                                    <Link to={`/product/${product.id}`}>
+                                <motion.div key={product._id} variants={itemVariants}>
+                                    <Link to={`/product/${product._id}`}>
                                         <ProductCard product={product} />
                                     </Link>
                                 </motion.div>

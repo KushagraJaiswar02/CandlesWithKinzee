@@ -1,6 +1,6 @@
 // src/ProductDetailPage.jsx
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEO from '../components/SEO.jsx';
@@ -32,20 +32,27 @@ const renderStars = (rating) => {
 
 
 const ProductDetailPage = () => {
-    const { id } = useParams(); // Get the product ID from the URL
+    const { id } = useParams();
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // --- Dummy Product Data (Replace with API fetch later) ---
-    const product = {
-        id: id,
-        name: id === 'p1' ? 'Warm Vanilla Glow' : id === 'p2' ? 'Sandalwood Serenity' : 'Handcrafted Candle',
-        price: 24.99,
-        description: "Experience the ultimate comfort with this hand-poured, slow-burning candle. Made from natural soy wax with a lead-free wick. It features notes of roasted vanilla bean, caramel, and a hint of smoky cedar.",
-        scent: 'Sweet & Comforting',
-        weight: '8 oz',
-        rating: 4.7,
-        stock: 15,
-        image: `https://res.cloudinary.com/demo/image/fetch/w_600,h_800,c_fill,g_auto/f_auto/product-${id}.jpg` // Cloudinary structure
-    };
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await fetch(`/api/products/${id}`);
+                const data = await res.json();
+                setProduct(data);
+                setLoading(false);
+            } catch (error) {
+                console.error(error);
+                setLoading(false);
+            }
+        };
+        fetchProduct();
+    }, [id]);
+
+    if (loading) return <div className="text-center py-20">Loading...</div>;
+    if (!product) return <div className="text-center py-20">Product not found</div>;
 
     // Framer Motion variant for page entry
     const pageVariants = {
@@ -95,7 +102,7 @@ const ProductDetailPage = () => {
                         <div className="flex items-center space-x-4 border-b border-shadow/50 pb-4">
                             {renderStars(product.rating)}
                             <span className="text-charcoal text-sm hover:text-flame cursor-pointer underline">
-                                Read all 45 reviews (Review system is required) [cite: 11, 13]
+                                Read all 45 reviews (Review system is required)
                             </span>
                         </div>
 
@@ -149,7 +156,7 @@ const ProductDetailPage = () => {
                 </section>
 
             </div>
-        </motion.div>
+        </motion.div >
     );
 };
 
