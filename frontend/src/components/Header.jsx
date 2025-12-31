@@ -1,171 +1,186 @@
+// src/components/Header.jsx
+
 import React, { useState, useEffect } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll } from 'framer-motion';
 import AuthContext from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { useCart } from '../context/CartContext';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const { user, logout } = React.useContext(AuthContext);
     const { addToast } = useToast();
+    const { cartCount } = useCart();
 
     const { scrollY } = useScroll();
 
-    // Optimized scroll detection
     useEffect(() => {
         return scrollY.onChange((latest) => {
-            setScrolled(latest > 20);
+            setScrolled(latest > 50);
         });
     }, [scrollY]);
 
-    // Placeholder Icons (for visual structure without external libraries)
+    // Icons
     const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>;
     const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
-    const ShoppingCartIcon = () => '🛒';
-    const UserIcon = () => '👤';
+    const ShoppingCartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>;
+    const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+    const LogOutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>;
 
     const handleLogout = () => {
         logout();
         addToast('Logged out successfully', 'info');
     };
 
-    // Filter links based on role
     const navLinks = [
         { path: '/', label: 'Home' },
         { path: '/shop', label: 'Shop' },
-        { path: '/profile', label: 'Profile', auth: true }, // Only for logged in
-        { path: '/admin', label: 'Admin', admin: true },    // Only for admin
+        { path: '/profile', label: 'Profile', auth: true },
+        { path: '/admin', label: 'Admin', admin: true },
     ];
+
+    // Dynamic Text Classes based on Scroll State
+    const textColorClass = scrolled ? 'text-charcoal' : 'text-white';
+    const hoverColorClass = scrolled ? 'hover:text-flame' : 'hover:text-primary';
 
     return (
         <motion.header
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm' : 'bg-transparent'}`}
+            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out px-4 sm:px-8 
+                ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm border-b border-shadow/10 py-3' : 'bg-gradient-to-b from-black/60 to-transparent py-6'}`}
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ type: "spring", stiffness: 100, damping: 20 }}
         >
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-20">
+            <div className="container mx-auto flex justify-between items-center">
 
-                    {/* LOGO AREA: Textual Logo with Elegant Font Style */}
-                    <Link
-                        to="/"
-                        className="flex items-center space-x-1 group"
-                    >
-                        <motion.span
-                            className="text-3xl font-serif font-extrabold text-brown tracking-wide"
-                            whileHover={{ scale: 1.05 }}
-                        >
-                            <span className="text-flame group-hover:text-primary transition-colors">Candles</span>With<span className="text-flame group-hover:text-primary transition-colors">Kinzee</span>
-                        </motion.span>
-                    </Link>
+                {/* 1. Logo */}
+                <Link to="/" className="group z-50">
+                    <span className={`text-2xl md:text-3xl font-serif font-bold tracking-tight transition-colors duration-300 ${scrolled ? 'text-brown' : 'text-white'}`}>
+                        CandlesWith<span className="font-light">Kinzee</span>
+                    </span>
+                </Link>
 
-                    {/* Desktop Navigation Links (Hidden on Mobile) */}
-                    <nav className="hidden md:flex items-center space-x-2 lg:space-x-6">
-                        {navLinks.map((link) => {
-                            if (link.auth && !user) return null;
-                            if (link.admin && (!user || !user.isAdmin)) return null;
-                            // Hide Profile link for Admin users
-                            if (link.path === '/profile' && user && user.isAdmin) return null;
+                {/* 2. Desktop Navigation (Centered) */}
+                <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+                    {navLinks.map((link) => {
+                        if (link.auth && !user) return null;
+                        if (link.admin && (!user || !user.isAdmin)) return null;
+                        if (link.path === '/profile' && user && user.isAdmin) return null;
 
-                            return (
-                                <NavLink key={link.path} to={link.path} className={({ isActive }) => `px-3 py-2 font-medium transition duration-200 rounded-md relative ${isActive ? 'text-flame font-bold' : 'text-charcoal hover:text-flame'}`}>
-                                    {({ isActive }) => (
-                                        <>
-                                            {link.label}
-                                            {isActive && (
-                                                <motion.div
-                                                    className="absolute bottom-0 left-0 w-full h-0.5 bg-flame"
-                                                    layoutId="navbar-underline"
-                                                />
-                                            )}
-                                        </>
-                                    )}
-                                </NavLink>
-                            );
-                        })}
-                    </nav>
-
-                    {/* Right-Side Icons & CTAs (Desktop) */}
-                    <div className="hidden md:flex items-center space-x-4">
-
-                        {/* Cart Button */}
-                        <Link
-                            to="/cart"
-                            className="relative p-2 text-charcoal bg-beige rounded-full hover:bg-primary/50 transition duration-200"
-                            title="Shopping Cart"
-                        >
-                            <ShoppingCartIcon />
-                            {/* Cart Item Count */}
-                            {/* <motion.span
-                                key="cart-count"
-                                initial={{ scale: 0 }} animate={{ scale: 1 }}
-                                className="absolute top-0 right-0 inline-flex items-center justify-center h-4 w-4 text-[10px] font-bold leading-none text-white transform translate-x-1/3 -translate-y-1/3 bg-flame rounded-full"
+                        return (
+                            <NavLink
+                                key={link.path}
+                                to={link.path}
+                                className={({ isActive }) =>
+                                    `text-sm font-medium tracking-wide uppercase transition-all duration-200 relative group ${isActive ? 'font-bold' : ''} ${textColorClass} ${hoverColorClass}`
+                                }
                             >
-                                3
-                            </motion.span> */}
+                                {({ isActive }) => (
+                                    <>
+                                        {link.label}
+                                        <span className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${scrolled ? 'bg-flame' : 'bg-white'}`}></span>
+                                    </>
+                                )}
+                            </NavLink>
+                        );
+                    })}
+                </nav>
+
+                {/* 3. Right Actions (Cart & User) */}
+                <div className={`hidden md:flex items-center space-x-6 z-50 ${textColorClass}`}>
+
+                    {/* Cart - Hide for Admin */}
+                    {!user?.isAdmin && (
+                        <Link to="/cart" className={`relative p-1 transition-colors ${hoverColorClass}`} title="Cart">
+                            <ShoppingCartIcon />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-flame text-[10px] text-white font-bold">
+                                    {cartCount}
+                                </span>
+                            )}
                         </Link>
+                    )}
 
-                        {user ? (
-                            <div className="flex items-center gap-4">
-                                <span className="text-sm font-semibold text-brown">Hi, {user.name}</span>
-                                <button onClick={handleLogout} className="text-sm text-charcoal hover:text-flame underline">Logout</button>
-                            </div>
-                        ) : (
-                            <Link to="/login">
-                                <motion.button
-                                    className="flex items-center py-2 px-4 text-charcoal bg-primary font-semibold rounded-lg hover:bg-flame hover:text-white transition duration-200 shadow-md"
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                >
-                                    {UserIcon()} <span className="ml-1">Sign In</span>
-                                </motion.button>
-                            </Link>
-                        )}
-                    </div>
+                    {/* User Section */}
+                    {user ? (
+                        <div className="flex items-center space-x-4">
+                            {/* Profile Link (Icon Only) - Hide for Admin */}
+                            {!user.isAdmin && (
+                                <Link to="/profile" className={`flex items-center gap-2 transition-colors ${hoverColorClass}`} title="My Profile">
+                                    <UserIcon />
+                                </Link>
+                            )}
 
-                    {/* Mobile Menu Button (Hidden on Desktop) */}
-                    <div className="md:hidden flex items-center">
-                        <button
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="p-2 text-brown hover:text-flame"
-                        >
-                            {isOpen ? <XIcon /> : <MenuIcon />}
-                        </button>
-                    </div>
+                            {/* Separator - Hide if Admin (since Profile is gone) */}
+                            {!user.isAdmin && (
+                                <div className={`h-4 w-px ${scrolled ? 'bg-charcoal/20' : 'bg-white/30'}`}></div>
+                            )}
 
+                            {/* Logout */}
+                            <button onClick={handleLogout} className={`flex items-center gap-2 transition-colors ${hoverColorClass}`} title="Logout">
+                                <LogOutIcon />
+                            </button>
+                        </div>
+                    ) : (
+                        <Link to="/login">
+                            <motion.button
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300 border 
+                                    ${scrolled
+                                        ? 'border-charcoal text-charcoal hover:bg-charcoal hover:text-white'
+                                        : 'border-white text-white hover:bg-white hover:text-brown'
+                                    }`}
+                            >
+                                Sign In
+                            </motion.button>
+                        </Link>
+                    )}
+                </div>
+
+                {/* Mobile Menu Toggle */}
+                <div className="md:hidden z-50">
+                    <button onClick={() => setIsOpen(!isOpen)} className={`${textColorClass}`}>
+                        {isOpen ? <XIcon /> : <MenuIcon />}
+                    </button>
                 </div>
             </div>
 
-            {/* Mobile Menu (Conditionally Rendered) */}
+            {/* Mobile Menu Overlay */}
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="md:hidden bg-white border-t border-shadow/50 overflow-hidden"
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="absolute top-full left-0 w-full bg-white shadow-xl border-t border-neutral-100 py-6 px-6 flex flex-col space-y-4 md:hidden"
                     >
-                        <div className="px-4 pt-2 pb-3 space-y-1 flex flex-col">
-                            {navLinks.map((link) => {
-                                if (link.auth && !user) return null;
-                                if (link.admin && (!user || !user.isAdmin)) return null;
-                                // Hide Profile link for Admin users
-                                if (link.path === '/profile' && user && user.isAdmin) return null;
-                                return (
-                                    <Link key={link.path} to={link.path} className="block px-3 py-2 text-charcoal hover:bg-beige rounded-md font-medium" onClick={() => setIsOpen(false)}>{link.label}</Link>
-                                );
-                            })}
-                            {user ? (
-                                <button onClick={() => { handleLogout(); setIsOpen(false); }} className="block w-full text-left px-3 py-2 text-charcoal hover:bg-beige rounded-md font-medium">Logout</button>
-                            ) : (
-                                <Link to="/login" className="flex items-center px-3 py-2 text-charcoal font-medium hover:bg-beige rounded-md" onClick={() => setIsOpen(false)}>Sign In</Link>
-                            )}
-                        </div>
+                        {navLinks.map((link) => {
+                            if (link.auth && !user) return null;
+                            if (link.admin && (!user || !user.isAdmin)) return null;
+                            return (
+                                <Link
+                                    key={link.path}
+                                    to={link.path}
+                                    className="text-lg font-serif text-charcoal"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    {link.label}
+                                </Link>
+                            );
+                        })}
+                        <hr className="border-neutral-100" />
+                        {user ? (
+                            <button onClick={() => { handleLogout(); setIsOpen(false); }} className="text-left text-primary font-medium">Logout</button>
+                        ) : (
+                            <Link to="/login" onClick={() => setIsOpen(false)} className="text-primary font-medium">Sign In</Link>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
+
         </motion.header>
     );
 };

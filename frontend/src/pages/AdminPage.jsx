@@ -30,7 +30,7 @@ const AdminDashboard = () => {
 
     // Form State
     const [editingProduct, setEditingProduct] = useState(null); // For Edit Mode
-    const [productForm, setProductForm] = useState({ name: '', price: '', stock: '', category: '', description: '', image: '' });
+    const [productForm, setProductForm] = useState({ name: '', price: '', countInStock: '', category: '', description: '', image: '' });
 
     // Categories
     const categories = ['Aromatherapy', 'Soy Wax', 'Pillar Candles', 'Scented Votives', 'Seasonal', 'Decorative'];
@@ -58,7 +58,7 @@ const AdminDashboard = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('/api/products');
+            const res = await fetch('/api/products?showAll=true');
             const data = await res.json();
             setProducts(data);
         } catch (error) { console.error(error); }
@@ -131,7 +131,7 @@ const AdminDashboard = () => {
         setProductForm({
             name: product.name,
             price: product.price,
-            stock: product.stock,
+            countInStock: product.countInStock,
             category: product.category,
             description: product.description,
             image: product.image || ''
@@ -200,7 +200,7 @@ const AdminDashboard = () => {
                     </datalist>
 
                     <input type="number" placeholder="Price ($)" required className="p-3 border border-shadow rounded-lg" value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} />
-                    <input type="number" placeholder="Stock Quantity" required className="p-3 border border-shadow rounded-lg" value={productForm.stock} onChange={e => setProductForm({ ...productForm, stock: e.target.value })} />
+                    <input type="number" placeholder="Stock Quantity" required className="p-3 border border-shadow rounded-lg" value={productForm.countInStock} onChange={e => setProductForm({ ...productForm, countInStock: e.target.value })} />
                     {/* Image Upload Handlers */}
                     <div className="md:col-span-2 space-y-2">
                         <label className="block text-charcoal font-bold mb-1">Product Image</label>
@@ -280,18 +280,33 @@ const AdminDashboard = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {products.map(product => (
-                            <tr key={product._id} className="border-b border-shadow/10 hover:bg-beige/30 transition">
-                                <td className="p-3 font-semibold text-charcoal">{product.name}</td>
-                                <td className="p-3 text-sm">{product.category}</td>
-                                <td className="p-3">${product.price.toFixed(2)}</td>
-                                <td className={`p-3 font-bold ${product.stock < 5 ? 'text-red-500' : 'text-green-600'}`}>{product.stock}</td>
-                                <td className="p-3 flex space-x-2">
-                                    <Link to={`/admin/product/${product._id}/edit`} className="text-blue-500 hover:text-blue-700" title="Edit"><EditIcon /></Link>
-                                    <button onClick={() => handleDeleteProduct(product._id)} className="text-red-500 hover:text-red-700" title="Delete"><TrashIcon /></button>
-                                </td>
-                            </tr>
-                        ))}
+                        {products.map(product => {
+                            const isLowStock = product.countInStock > 0 && product.countInStock <= 5;
+                            const isOutOfStock = product.countInStock === 0;
+
+                            return (
+                                <tr key={product._id} className="border-b border-shadow/10 hover:bg-beige/30 transition">
+                                    <td className="p-3 font-semibold text-charcoal">{product.name}</td>
+                                    <td className="p-3 text-sm">{product.category}</td>
+                                    <td className="p-3">${product.price.toFixed(2)}</td>
+                                    <td className="p-3 font-bold">
+                                        {isOutOfStock ? (
+                                            <span className="text-red-600 uppercase text-xs tracking-wider">Out of Stock</span>
+                                        ) : isLowStock ? (
+                                            <span className="text-[#FF9F1C] flex items-center gap-1">
+                                                {product.countInStock} <span className="text-[10px] uppercase font-bold border border-[#FF9F1C] px-1 rounded">Low</span>
+                                            </span>
+                                        ) : (
+                                            <span className="text-green-600">{product.countInStock}</span>
+                                        )}
+                                    </td>
+                                    <td className="p-3 flex space-x-2">
+                                        <Link to={`/admin/product/${product._id}/edit`} className="text-blue-500 hover:text-blue-700" title="Edit"><EditIcon /></Link>
+                                        <button onClick={() => handleDeleteProduct(product._id)} className="text-red-500 hover:text-red-700" title="Delete"><TrashIcon /></button>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>

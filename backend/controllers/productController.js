@@ -3,6 +3,9 @@ const Product = require('../models/ProductModel');
 // @desc    Fetch all products
 // @route   GET /api/products
 // @access  Public
+// @desc    Fetch all products
+// @route   GET /api/products
+// @access  Public
 const getProducts = async (req, res) => {
     const keyword = req.query.keyword ? {
         name: {
@@ -16,7 +19,16 @@ const getProducts = async (req, res) => {
         keyword.category = req.query.category;
     }
 
-    const products = await Product.find({ ...keyword, isDeleted: false });
+    // Smart Filtering: Hide OOS items unless 'showAll' is requested (e.g. by Admin)
+    // Note: In a real app, verify admin token here. For now, we trust the query param or just hide for public shop.
+    let filter = { ...keyword, isDeleted: false };
+
+    // If NOT explicitly asking for all (Admin), hide OOS logic:
+    if (req.query.showAll !== 'true') {
+        filter.countInStock = { $gt: 0 };
+    }
+
+    const products = await Product.find(filter);
     res.json(products);
 };
 
@@ -53,7 +65,7 @@ const deleteProduct = async (req, res) => {
 // @access  Private/Admin
 const createProduct = async (req, res) => {
     console.log('createProduct called with body:', req.body);
-    const { name, price, description, image, category, stock } = req.body;
+    const { name, price, description, image, category, countInStock } = req.body;
 
     // Basic Validation
     if (!name || !price || !category) {
@@ -67,7 +79,7 @@ const createProduct = async (req, res) => {
         user: req.user._id,
         image: image || '/images/sample.jpg', // Default if not provided
         category,
-        stock: stock || 0,
+        countInStock: countInStock || 0,
         numReviews: 0,
         description: description || 'No description',
         isDeleted: false
@@ -81,7 +93,7 @@ const createProduct = async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private/Admin
 const updateProduct = async (req, res) => {
-    const { name, price, description, image, category, stock } = req.body;
+    const { name, price, description, image, category, countInStock } = req.body;
 
     const product = await Product.findById(req.params.id);
 
@@ -91,7 +103,7 @@ const updateProduct = async (req, res) => {
         product.description = description;
         product.image = image;
         product.category = category;
-        product.stock = stock;
+        product.countInStock = countInStock;
 
         const updatedProduct = await product.save();
         res.json(updatedProduct);
@@ -121,7 +133,6 @@ module.exports = {
     getProducts,
     getProductById,
     deleteProduct,
-    createProduct,
     createProduct,
     updateProduct,
     getDeletedProducts,

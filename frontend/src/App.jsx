@@ -22,43 +22,46 @@ import NotFound from './pages/NotFound';
 // Toast Provider
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider } from './context/AuthContext';
+import { CartProvider } from './context/CartContext';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <ToastProvider>
-          <div className="flex flex-col min-h-screen bg-beige font-sans">
+          <CartProvider>
+            <div className="flex flex-col min-h-screen bg-beige font-sans">
 
-            <Navbar />
+              <Navbar />
 
-            <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <Routes>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/shop" element={<ProductListingPage />} />
-                <Route path="/product/:id" element={<ProductDetailPage />} />
-                <Route path="/cart" element={<CartPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/admin" element={
-                  <AdminRoute>
-                    <AdminDashboard />
-                  </AdminRoute>
-                } />
-                <Route path="/admin/product/:id/edit" element={
-                  <AdminRoute>
-                    <EditProductPage />
-                  </AdminRoute>
-                } />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
+              <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/shop" element={<ProductListingPage />} />
+                  <Route path="/product/:id" element={<ProductDetailPage />} />
+                  <Route path="/cart" element={<CartPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/admin" element={
+                    <AdminRoute>
+                      <AdminDashboard />
+                    </AdminRoute>
+                  } />
+                  <Route path="/admin/product/:id/edit" element={
+                    <AdminRoute>
+                      <EditProductPage />
+                    </AdminRoute>
+                  } />
+                  <Route path="/checkout" element={<CheckoutPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
 
-            <Footer />
+              <Footer />
 
-          </div>
+            </div>
+          </CartProvider>
         </ToastProvider>
       </AuthProvider>
     </Router>
