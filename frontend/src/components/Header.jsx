@@ -117,9 +117,15 @@ const Header = () => {
                         <div className="flex items-center space-x-4">
                             {/* Profile Link (Icon Only) - Hide for Admin */}
                             {/* Profile Link (Icon Only) */}
-                            <Link to="/profile" className={`flex items-center gap-2 transition-colors group ${hoverColorClass}`} title="My Profile">
-                                <UserIcon />
-                                <span className="font-medium text-sm hidden sm:block">Welcome {user.name}!</span>
+                            <Link to="/profile" className={`flex items-center gap-3 transition-colors group ${hoverColorClass}`} title="My Profile">
+                                <span className="font-medium text-sm hidden sm:block">Profile</span>
+                                {user.profileImage ? (
+                                    <img src={user.profileImage} alt={user.name} className="w-10 h-10 rounded-full object-cover border-2 border-white/50 shadow-sm" />
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-lg shadow-sm">
+                                        👤
+                                    </div>
+                                )}
                             </Link>
 
                             {/* Separator - Hide if Admin (since Profile is gone) */}
