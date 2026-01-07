@@ -147,7 +147,10 @@ const AdminDashboard = () => {
             countInStock: product.countInStock,
             category: product.category,
             description: product.description,
-            image: product.image || ''
+            description: product.description,
+            image: (product.image && typeof product.image === 'object')
+                ? (product.image.secure_url || product.image.url || product.image.image)
+                : (product.image || '')
         });
         window.scrollTo(0, 0); // Scroll to form
     };

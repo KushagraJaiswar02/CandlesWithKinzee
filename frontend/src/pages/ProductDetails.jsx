@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { useCart } from '../context/CartContext';
 import SEO from '../components/SEO.jsx';
 import AuthContext from '../context/AuthContext';
+import API_BASE_URL from '../config/api';
 
 // --- Clean "Star" Component ---
 const StarRating = ({ rating }) => {
@@ -175,8 +176,14 @@ const ProductDetailPage = () => {
                             {/* Direct Cloudinary URL */}
                             {(() => {
                                 let displayImage = product.image;
+                                // 1. Extract from Object
                                 if (displayImage && typeof displayImage === 'object') {
                                     displayImage = displayImage.secure_url || displayImage.url || displayImage.image;
+                                }
+                                // 2. Prepend Base URL if local
+                                if (displayImage && typeof displayImage === 'string' && !displayImage.startsWith('http') && !displayImage.startsWith('data:')) {
+                                    const cleanPath = displayImage.startsWith('/') ? displayImage : `/${displayImage}`;
+                                    displayImage = `${API_BASE_URL}${cleanPath}`;
                                 }
                                 return (
                                     <img

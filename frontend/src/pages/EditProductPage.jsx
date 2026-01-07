@@ -39,7 +39,9 @@ const EditProductPage = () => {
                 if (data) {
                     setName(data.name);
                     setPrice(data.price);
-                    setImage(data.image);
+                    setImage((data.image && typeof data.image === 'object')
+                        ? (data.image.secure_url || data.image.url || data.image.image)
+                        : data.image);
                     setCategory(data.category);
                     setStock(data.countInStock);
                     setDescription(data.description);

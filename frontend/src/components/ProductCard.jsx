@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import API_BASE_URL from '../config/api';
 
 // --- Image Mapping Function ---
 const generatePlaceholderUrl = (name) => {
@@ -11,10 +12,24 @@ const generatePlaceholderUrl = (name) => {
 
 export default function ProductCard({ product }) {
     // Use direct URL from Cloudinary or fallback
+    // Use direct URL from Cloudinary or fallback
     let imageUrl = product?.image;
+
+    // 1. Handle Object: Extract URL string if it's an object
     if (imageUrl && typeof imageUrl === 'object') {
         imageUrl = imageUrl.secure_url || imageUrl.url || imageUrl.image;
     }
+
+    // 2. Handle Local vs Remote: Prepend API URL only if it's a local path (not http/data)
+    if (imageUrl && typeof imageUrl === 'string') {
+        if (!imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+            // Remove leading slash from path if present to avoid double slash, assuming API_BASE_URL doesn't end in slash
+            const cleanPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+            imageUrl = `${API_BASE_URL}${cleanPath}`;
+        }
+    }
+
+    // 3. Fallback
     imageUrl = imageUrl || generatePlaceholderUrl(product?.name || 'Default Candle');
 
     return (
