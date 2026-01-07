@@ -47,6 +47,9 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/admin/stats`, { headers: { Authorization: `Bearer ${user.token}` } });
+            if (!res.ok) throw new Error(`API: ${res.status}`);
+            const ct = res.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON API response");
             const data = await res.json();
             setStats({
                 revenue: data.totalRevenue || 0,
@@ -60,6 +63,9 @@ const AdminDashboard = () => {
     const fetchProducts = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/products?showAll=true`);
+            if (!res.ok) throw new Error(`API: ${res.status}`);
+            const ct = res.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON API response");
             const data = await res.json();
             setProducts(data);
         } catch (error) { console.error(error); }
@@ -68,6 +74,7 @@ const AdminDashboard = () => {
     const fetchDeletedProducts = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/products/history`, { headers: { Authorization: `Bearer ${user.token}` } });
+            if (!res.ok && res.status !== 401) throw new Error(`API: ${res.status}`);
             if (res.status === 401) {
                 addToast('Session expired. Please login again.', 'error');
                 return;
@@ -87,6 +94,9 @@ const AdminDashboard = () => {
     const fetchOrders = async () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/orders`, { headers: { Authorization: `Bearer ${user.token}` } });
+            if (!res.ok) throw new Error(`API: ${res.status}`);
+            const ct = res.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON API response");
             const data = await res.json();
             setOrders(data);
         } catch (error) { console.error(error); }
@@ -104,6 +114,8 @@ const AdminDashboard = () => {
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
                 body: JSON.stringify(productForm)
             });
+
+            if (!res.ok && res.status !== 401) throw new Error(`API: ${res.status}`);
 
             if (res.status === 401) {
                 addToast('Session expired. Please login again.', 'error');
@@ -147,6 +159,7 @@ const AdminDashboard = () => {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${user.token}` }
             });
+            if (!res.ok) throw new Error(`Delete Failed: ${res.status}`);
             if (res.ok) {
                 addToast('Product moved to history', 'success');
                 fetchProducts();
@@ -166,6 +179,8 @@ const AdminDashboard = () => {
                 },
                 body: JSON.stringify({ status })
             });
+
+            if (!res.ok) throw new Error(`Update Failed: ${res.status}`);
 
             if (res.ok) {
                 addToast(`Order updated to ${status}`, 'success');
@@ -251,8 +266,9 @@ const AdminDashboard = () => {
                                                 method: 'POST',
                                                 body: formData,
                                             });
-                                            const data = await res.text();
-                                            setProductForm({ ...productForm, image: data });
+                                            if (!res.ok) throw new Error('Upload Failed');
+                                            const data = await res.json();
+                                            setProductForm({ ...productForm, image: data.image });
                                             setLoading(false);
                                         } catch (error) {
                                             console.error(error);

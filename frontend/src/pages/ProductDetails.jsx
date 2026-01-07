@@ -41,6 +41,12 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
         try {
             const res = await fetch(`/api/products/${id}`);
+            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            // Check content-type
+            const contentType = res.headers.get("content-type");
+            if (!contentType || !contentType.includes("application/json")) {
+                throw new TypeError("Received non-JSON response from API");
+            }
             const data = await res.json();
             setProduct(data);
             setLoading(false);
@@ -170,7 +176,7 @@ const ProductDetailPage = () => {
                             {(() => {
                                 let displayImage = product.image;
                                 if (displayImage && typeof displayImage === 'object') {
-                                    displayImage = displayImage.secure_url || displayImage.url;
+                                    displayImage = displayImage.secure_url || displayImage.url || displayImage.image;
                                 }
                                 return (
                                     <img

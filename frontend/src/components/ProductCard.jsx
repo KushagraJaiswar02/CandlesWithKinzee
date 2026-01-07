@@ -13,7 +13,7 @@ export default function ProductCard({ product }) {
     // Use direct URL from Cloudinary or fallback
     let imageUrl = product?.image;
     if (imageUrl && typeof imageUrl === 'object') {
-        imageUrl = imageUrl.secure_url || imageUrl.url;
+        imageUrl = imageUrl.secure_url || imageUrl.url || imageUrl.image;
     }
     imageUrl = imageUrl || generatePlaceholderUrl(product?.name || 'Default Candle');
 

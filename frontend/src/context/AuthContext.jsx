@@ -26,6 +26,8 @@ export const AuthProvider = ({ children }) => {
                 body: JSON.stringify({ email, password }),
             });
 
+            const ct = res.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON response from Login API");
             const data = await res.json();
 
             if (res.ok) {
@@ -50,6 +52,8 @@ export const AuthProvider = ({ children }) => {
                 body: JSON.stringify({ name, email, password }),
             });
 
+            const ct = res.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON response from Register API");
             const data = await res.json();
 
             if (res.ok) {

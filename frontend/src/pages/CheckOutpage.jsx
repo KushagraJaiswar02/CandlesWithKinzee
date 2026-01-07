@@ -126,6 +126,10 @@ const CheckoutPage = () => {
             });
 
             // Robust JSON parsing
+            if (!orderRes.ok) throw new Error(`Order Creation Failed: ${orderRes.status}`);
+            const ct = orderRes.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON Order response");
+
             let order;
             try {
                 order = await orderRes.json();

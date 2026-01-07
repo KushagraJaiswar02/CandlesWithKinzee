@@ -28,6 +28,13 @@ const EditProductPage = () => {
         const fetchProduct = async () => {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
+                if (!res.ok) throw new Error(`Failed to fetch product: ${res.status}`);
+
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new TypeError("Received non-JSON response");
+                }
+
                 const data = await res.json();
                 if (data) {
                     setName(data.name);
@@ -66,6 +73,8 @@ const EditProductPage = () => {
                     countInStock: stock,
                 }),
             });
+
+            if (!res.ok) throw new Error(`Update Failed: ${res.status}`);
 
             if (res.ok) {
                 addToast('Product Updated Successfully', 'success');
@@ -176,6 +185,7 @@ const EditProductPage = () => {
                                                     method: 'POST',
                                                     body: formData,
                                                 });
+                                                if (!res.ok) throw new Error('Upload Failed');
                                                 const data = await res.json();
                                                 setImage(data.image);
                                                 setUpdating(false);

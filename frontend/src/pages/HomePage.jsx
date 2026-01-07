@@ -29,6 +29,13 @@ const HomePage = () => {
         const fetchProducts = async () => {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/products`);
+                if (!res.ok) throw new Error(`API Request Failed: ${res.status}`);
+
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new TypeError("Received HTML instead of JSON. Check API URL.");
+                }
+
                 const data = await res.json();
                 setFeaturedProducts(data.slice(0, 4));
             } catch (error) {

@@ -47,6 +47,9 @@ const ProfilePage = () => {
             const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
+            if (!res.ok) throw new Error(`API: ${res.status}`);
+            const ct = res.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON API response");
             const data = await res.json();
             setProfile(data);
             setProfileForm({ name: data.name, email: data.email, phoneNumber: data.phoneNumber || '', password: '', profileImage: data.profileImage || '' });
@@ -58,6 +61,9 @@ const ProfilePage = () => {
             const res = await fetch(`${API_BASE_URL}/api/orders/myorders`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
+            if (!res.ok) throw new Error(`API: ${res.status}`);
+            const ct = res.headers.get("content-type");
+            if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON API response");
             const data = await res.json();
             setOrders(data);
         } catch (error) { console.error(error); }
@@ -91,10 +97,10 @@ const ProfilePage = () => {
                 method: 'POST',
                 body: formData,
             });
-            const data = await res.text();
+            const data = await res.json();
 
             if (res.ok) {
-                setProfileForm({ ...profileForm, profileImage: data });
+                setProfileForm({ ...profileForm, profileImage: data.image });
                 addToast('Image Uploaded', 'success');
             } else {
                 addToast('Image upload failed', 'error');
@@ -389,6 +395,11 @@ const ProfilePage = () => {
                                 order_id: order._id
                             })
                         });
+
+                        if (!verifyRes.ok) throw new Error(`Verification Failed: ${verifyRes.status}`);
+                        const ct = verifyRes.headers.get("content-type");
+                        if (!ct || !ct.includes("application/json")) throw new TypeError("Non-JSON Verify response");
+
                         const verifyData = await verifyRes.json();
                         if (verifyRes.ok) {
                             addToast('Payment Successful!', 'success');
