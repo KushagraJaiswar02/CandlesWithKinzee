@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import SEO from '../components/SEO.jsx';
+import API_BASE_URL from '../config/api';
 
 const EditProductPage = () => {
     const { id } = useParams();
@@ -26,7 +27,7 @@ const EditProductPage = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const res = await fetch(`/api/products/${id}`);
+                const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
                 const data = await res.json();
                 if (data) {
                     setName(data.name);
@@ -50,7 +51,7 @@ const EditProductPage = () => {
         e.preventDefault();
         setUpdating(true);
         try {
-            const res = await fetch(`/api/products/${id}`, {
+            const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -171,7 +172,7 @@ const EditProductPage = () => {
                                             formData.append('image', file);
                                             try {
                                                 setUpdating(true);
-                                                const res = await fetch('/api/upload', {
+                                                const res = await fetch(`${API_BASE_URL}/api/upload`, {
                                                     method: 'POST',
                                                     body: formData,
                                                 });

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import SEO from '../components/SEO.jsx';
 import ProductCard from '../components/ProductCard.jsx';
 import heroImage from '../assets/hero.png';
+import API_BASE_URL from '../config/api';
 
 const HomePage = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -27,7 +28,7 @@ const HomePage = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await fetch('/api/products');
+                const res = await fetch(`${API_BASE_URL}/api/products`);
                 const data = await res.json();
                 setFeaturedProducts(data.slice(0, 4));
             } catch (error) {

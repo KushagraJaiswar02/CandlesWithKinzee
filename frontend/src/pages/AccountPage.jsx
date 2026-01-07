@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import SEO from '../components/SEO.jsx';
 import AuthContext from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import API_BASE_URL from '../config/api';
 
 // Placeholder icons (using emojis for simplicity and aesthetic fit)
 const ProfileIcon = () => '👤';
@@ -43,7 +44,7 @@ const ProfilePage = () => {
 
     const fetchProfile = async () => {
         try {
-            const res = await fetch('/api/auth/profile', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
             const data = await res.json();
@@ -54,7 +55,7 @@ const ProfilePage = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch('/api/orders/myorders', {
+            const res = await fetch(`${API_BASE_URL}/api/orders/myorders`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             });
             const data = await res.json();
@@ -65,7 +66,7 @@ const ProfilePage = () => {
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         try {
-            const res = await fetch('/api/auth/profile', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
                 body: JSON.stringify(profileForm)
@@ -86,7 +87,7 @@ const ProfilePage = () => {
         formData.append('image', file);
 
         try {
-            const res = await fetch('/api/upload', {
+            const res = await fetch(`${API_BASE_URL}/api/upload`, {
                 method: 'POST',
                 body: formData,
             });
@@ -150,7 +151,7 @@ const ProfilePage = () => {
     // Helper to update specific fields via PUT
     const updateUserData = async (updates, onSuccess) => {
         try {
-            const res = await fetch('/api/auth/profile', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
                 body: JSON.stringify(updates)
@@ -351,7 +352,7 @@ const ProfilePage = () => {
             }
 
             // 2. Create Razorpay Order (using existing backend order)
-            const payRes = await fetch(`/api/orders/pay/${order._id}`, {
+            const payRes = await fetch(`${API_BASE_URL}/api/orders/pay/${order._id}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
@@ -375,7 +376,7 @@ const ProfilePage = () => {
                 order_id: paymentData.id,
                 handler: async function (response) {
                     try {
-                        const verifyRes = await fetch('/api/orders/pay/verify', {
+                        const verifyRes = await fetch(`${API_BASE_URL}/api/orders/pay/verify`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

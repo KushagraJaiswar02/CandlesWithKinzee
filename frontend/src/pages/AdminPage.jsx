@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import SEO from '../components/SEO.jsx';
 import AuthContext from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import API_BASE_URL from '../config/api';
 
 // --- Icons ---
 const DashboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>;
@@ -45,7 +46,7 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const res = await fetch('/api/admin/stats', { headers: { Authorization: `Bearer ${user.token}` } });
+            const res = await fetch(`${API_BASE_URL}/api/admin/stats`, { headers: { Authorization: `Bearer ${user.token}` } });
             const data = await res.json();
             setStats({
                 revenue: data.totalRevenue || 0,
@@ -58,7 +59,7 @@ const AdminDashboard = () => {
 
     const fetchProducts = async () => {
         try {
-            const res = await fetch('/api/products?showAll=true');
+            const res = await fetch(`${API_BASE_URL}/api/products?showAll=true`);
             const data = await res.json();
             setProducts(data);
         } catch (error) { console.error(error); }
@@ -66,7 +67,7 @@ const AdminDashboard = () => {
 
     const fetchDeletedProducts = async () => {
         try {
-            const res = await fetch('/api/products/history', { headers: { Authorization: `Bearer ${user.token}` } });
+            const res = await fetch(`${API_BASE_URL}/api/products/history`, { headers: { Authorization: `Bearer ${user.token}` } });
             if (res.status === 401) {
                 addToast('Session expired. Please login again.', 'error');
                 return;
@@ -85,7 +86,7 @@ const AdminDashboard = () => {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch('/api/orders', { headers: { Authorization: `Bearer ${user.token}` } });
+            const res = await fetch(`${API_BASE_URL}/api/orders`, { headers: { Authorization: `Bearer ${user.token}` } });
             const data = await res.json();
             setOrders(data);
         } catch (error) { console.error(error); }
@@ -94,7 +95,7 @@ const AdminDashboard = () => {
     const handleProductSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const url = editingProduct ? `/api/products/${editingProduct._id}` : '/api/products';
+        const url = editingProduct ? `${API_BASE_URL}/api/products/${editingProduct._id}` : `${API_BASE_URL}/api/products`;
         const method = editingProduct ? 'PUT' : 'POST';
 
         try {
@@ -142,7 +143,7 @@ const AdminDashboard = () => {
     const handleDeleteProduct = async (id) => {
         if (!window.confirm('Are you sure? This will move the product to history.')) return;
         try {
-            const res = await fetch(`/api/products/${id}`, {
+            const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${user.token}` }
             });
@@ -157,7 +158,7 @@ const AdminDashboard = () => {
     const handleStatusUpdate = async (id, status) => {
         if (!window.confirm(`Update order status to "${status}"?`)) return;
         try {
-            const res = await fetch(`/api/orders/${id}/deliver`, {
+            const res = await fetch(`${API_BASE_URL}/api/orders/${id}/deliver`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -246,7 +247,7 @@ const AdminDashboard = () => {
                                         formData.append('image', file);
                                         try {
                                             setLoading(true);
-                                            const res = await fetch('/api/upload', {
+                                            const res = await fetch(`${API_BASE_URL}/api/upload`, {
                                                 method: 'POST',
                                                 body: formData,
                                             });

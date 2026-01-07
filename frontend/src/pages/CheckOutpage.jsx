@@ -8,6 +8,7 @@ import SEO from '../components/SEO.jsx';
 import { useCart } from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import API_BASE_URL from '../config/api';
 
 // Placeholder Icons
 const LockIcon = () => '🔒'; // For security
@@ -81,7 +82,7 @@ const CheckoutPage = () => {
             // OPTIONAL: Update User Profile with new address if desired
             // The user requested to save the address to profile
             try {
-                await fetch('/api/auth/profile', {
+                await fetch(`${API_BASE_URL}/api/auth/profile`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -101,7 +102,7 @@ const CheckoutPage = () => {
             }
 
             // 1. Create Order
-            const orderRes = await fetch('http://localhost:5001/api/orders', {
+            const orderRes = await fetch(`${API_BASE_URL}/api/orders`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -142,7 +143,7 @@ const CheckoutPage = () => {
             }
 
             // 3. Create Razorpay Order
-            const payRes = await fetch(`http://localhost:5001/api/orders/pay/${order._id}`, {
+            const payRes = await fetch(`${API_BASE_URL}/api/orders/pay/${order._id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${user.token}`
@@ -168,7 +169,7 @@ const CheckoutPage = () => {
                 order_id: paymentData.id,
                 handler: async function (response) {
                     try {
-                        const verifyRes = await fetch('http://localhost:5001/api/orders/pay/verify', {
+                        const verifyRes = await fetch(`${API_BASE_URL}/api/orders/pay/verify`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

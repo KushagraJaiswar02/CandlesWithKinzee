@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import API_BASE_URL from '../config/api';
 
 const AuthContext = createContext();
 
@@ -17,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const res = await fetch('/api/auth/login', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password) => {
         try {
-            const res = await fetch('/api/auth/register', {
+            const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

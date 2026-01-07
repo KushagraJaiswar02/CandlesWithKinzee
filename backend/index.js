@@ -13,7 +13,13 @@ const app = express();
 
 // Middleware
 app.use(express.json()); // Body parser
-app.use(cors()); // Enable CORS
+
+// CORS Configuration
+const corsOptions = {
+    origin: process.env.FRONTEND_URL || '*', // Default to allow all in development if not set
+    credentials: true,
+};
+app.use(cors(corsOptions));
 
 // Import Routes
 const authRoutes = require('./routes/authRoutes');

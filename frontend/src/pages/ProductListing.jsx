@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard.jsx';
 import SEO from '../components/SEO.jsx';
+import API_BASE_URL from '../config/api';
 
 const ProductListingPage = () => {
     // Dummy Data for Product Display
@@ -14,7 +15,7 @@ const ProductListingPage = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const res = await fetch('/api/products');
+                const res = await fetch(`${API_BASE_URL}/api/products`);
                 const data = await res.json();
                 setProducts(data);
                 setLoading(false);
