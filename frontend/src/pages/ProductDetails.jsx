@@ -8,6 +8,7 @@ import { useCart } from '../context/CartContext';
 import SEO from '../components/SEO.jsx';
 import AuthContext from '../context/AuthContext';
 import { getValidImageUrl } from '../utils/imageHelper';
+import API_BASE_URL from '../config/api';
 
 // --- Clean "Star" Component ---
 const StarRating = ({ rating }) => {
@@ -41,7 +42,7 @@ const ProductDetailPage = () => {
 
     const fetchProduct = async () => {
         try {
-            const res = await fetch(`/api/products/${id}`);
+            const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
             if (!res.ok) throw new Error('Product not found');
             // Check content-type
             const contentType = res.headers.get("content-type");
@@ -84,7 +85,7 @@ const ProductDetailPage = () => {
         e.preventDefault();
         try {
             const method = hasCurrentReview ? 'PUT' : 'POST';
-            const res = await fetch(`/api/products/${id}/reviews`, {
+            const res = await fetch(`${API_BASE_URL}/api/products/${id}/reviews`, {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -108,7 +109,7 @@ const ProductDetailPage = () => {
     const deleteReviewHandler = async () => {
         if (!window.confirm('Are you sure you want to delete your review?')) return;
         try {
-            const res = await fetch(`/api/products/${id}/reviews`, {
+            const res = await fetch(`${API_BASE_URL}/api/products/${id}/reviews`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${user.token}` },
             });
