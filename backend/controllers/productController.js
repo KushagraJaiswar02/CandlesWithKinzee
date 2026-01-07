@@ -73,11 +73,19 @@ const createProduct = async (req, res) => {
         throw new Error('Please fill in all required fields');
     }
 
+    // Sanitize Image: If Cloudinary object, extract secure_url
+    let imagePath = image;
+    if (image && typeof image === 'object') {
+        imagePath = image.secure_url || image.url || '/images/sample.jpg';
+    } else if (!image) {
+        imagePath = '/images/sample.jpg';
+    }
+
     const product = new Product({
         name,
         price,
         user: req.user._id,
-        image: image || '/images/sample.jpg', // Default if not provided
+        image: imagePath,
         category,
         countInStock: countInStock || 0,
         numReviews: 0,
@@ -101,7 +109,16 @@ const updateProduct = async (req, res) => {
         product.name = name || product.name;
         product.price = price || product.price;
         product.description = description || product.description;
-        product.image = image || product.image;
+
+        // Sanitize Image Update
+        if (image) {
+            if (typeof image === 'object') {
+                product.image = image.secure_url || image.url || product.image;
+            } else {
+                product.image = image;
+            }
+        }
+
         product.category = category || product.category;
         // Check for undefined because countInStock can be 0 (falsey)
         product.countInStock = countInStock !== undefined ? countInStock : product.countInStock;

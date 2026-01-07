@@ -22,6 +22,12 @@ const ProductListingPage = () => {
                     }
                     throw new Error(`API Error: ${res.status} ${res.statusText}`);
                 }
+                // Check content-type to ensure we got JSON
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new TypeError("Received non-JSON response from API");
+                }
+
                 const data = await res.json();
                 setProducts(data);
                 setLoading(false);

@@ -11,7 +11,11 @@ const generatePlaceholderUrl = (name) => {
 
 export default function ProductCard({ product }) {
     // Use direct URL from Cloudinary or fallback
-    let imageUrl = product?.image || generatePlaceholderUrl(product?.name || 'Default Candle');
+    let imageUrl = product?.image;
+    if (imageUrl && typeof imageUrl === 'object') {
+        imageUrl = imageUrl.secure_url || imageUrl.url;
+    }
+    imageUrl = imageUrl || generatePlaceholderUrl(product?.name || 'Default Candle');
 
     return (
         <motion.div

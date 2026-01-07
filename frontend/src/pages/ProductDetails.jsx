@@ -167,12 +167,20 @@ const ProductDetailPage = () => {
                             className="relative w-full aspect-[4/5] lg:aspect-square bg-stone-50 rounded-[2rem] overflow-hidden"
                         >
                             {/* Direct Cloudinary URL */}
-                            <img
-                                src={product.image || "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail"}
-                                alt={product.name}
-                                className="w-full h-full object-cover mix-blend-multiply opacity-95"
-                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
-                            />
+                            {(() => {
+                                let displayImage = product.image;
+                                if (displayImage && typeof displayImage === 'object') {
+                                    displayImage = displayImage.secure_url || displayImage.url;
+                                }
+                                return (
+                                    <img
+                                        src={displayImage || "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail"}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover mix-blend-multiply opacity-95"
+                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
+                                    />
+                                );
+                            })()}
                         </motion.div>
                     </div>
 
