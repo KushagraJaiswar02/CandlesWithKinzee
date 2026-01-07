@@ -33,8 +33,15 @@ app.use('/api/upload', uploadRoutes);
 const uploadsPath = path.join(__dirname, '/uploads');
 app.use('/uploads', express.static(uploadsPath));
 
+const fs = require('fs');
+
 // Error Handling Middleware
 app.use((err, req, res, next) => {
+    const errorLog = `[${new Date().toISOString()}] ${err.stack}\n`;
+    fs.appendFile(path.join(__dirname, 'error.log'), errorLog, (fileErr) => {
+        if (fileErr) console.error('Failed to write to error log:', fileErr);
+    });
+
     console.error('🔥 Server Error:', err.stack);
     const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
     res.status(statusCode);

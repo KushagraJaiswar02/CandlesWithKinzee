@@ -5,203 +5,288 @@ import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO.jsx';
 import ProductCard from '../components/ProductCard.jsx';
-// Import local asset
 import heroImage from '../assets/hero.png';
 
 const HomePage = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const scrollRef = useRef(null);
-    const { scrollYProgress } = useScroll({ target: scrollRef, offset: ["start start", "end start"] });
-    const yRange = useTransform(scrollYProgress, [0, 1], [0, 200]);
-    const smoothY = useSpring(yRange, { stiffness: 100, damping: 20 });
+    const containerRef = useRef(null);
+    const { scrollY, scrollYProgress } = useScroll();
+
+    // Luxuriously smooth spring for the progress bar
+    const scaleX = useSpring(scrollYProgress, {
+        stiffness: 70,
+        damping: 25,
+        mass: 0.5,
+        restDelta: 0.001
+    });
+
+    // Parallax Effects
+    const yHeroText = useTransform(scrollY, [0, 500], [0, 150]); // Text moves slower
+    const yHeroImage = useTransform(scrollY, [0, 500], [0, -100]); // Image moves slightly up
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const res = await fetch('/api/products');
                 const data = await res.json();
-                setFeaturedProducts(data.slice(0, 8));
-                setLoading(false);
+                setFeaturedProducts(data.slice(0, 4));
             } catch (error) {
                 console.error('Error fetching products:', error);
-                setLoading(false);
             }
         };
         fetchProducts();
     }, []);
 
-    // Bento Grid Data - Using Branded Placeholders for reliability
-    // Colors: Primary #F5C76B, Text #2C2C2C
-    const moods = [
-        { name: 'Aromatherapy', image: 'https://placehold.co/600x600/F5C76B/2C2C2C?text=Aromatherapy', link: '/shop?category=aromatherapy', size: 'col-span-2 row-span-2' },
-        { name: 'Soy Wax', image: 'https://placehold.co/400x400/FFF7E6/8B5E3C?text=Pure+Soy+Wax', link: '/shop?type=soy', size: 'col-span-1 row-span-1' },
-        { name: 'Pillar', image: 'https://placehold.co/400x600/FF9F1C/FFFFFF?text=Elegant+Pillars', link: '/shop?type=pillar', size: 'col-span-1 row-span-2' },
-        { name: 'Votives', image: 'https://placehold.co/400x400/8B5E3C/FFF7E6?text=Votives', link: '/shop?type=votives', size: 'col-span-1 row-span-1' },
+    // --- Animations ---
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.15,
+                delayChildren: 0.2
+            }
+        }
+    };
+
+    // Custom "Luxury" Bezier Curve
+    const smoothEase = [0.25, 0.1, 0.25, 1]; // Similar to iOS ease-out
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 40 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 1.2,
+                ease: smoothEase
+            }
+        }
+    };
+
+    const bentoItems = [
+        {
+            title: "Aromatherapy",
+            col: "md:col-span-2",
+            row: "md:row-span-2",
+            img: "https://placehold.co/800x800/F5C76B/2C2C2C?text=Aromatherapy",
+            link: "/shop?category=aromatherapy"
+        },
+        {
+            title: "Soy Wax",
+            col: "md:col-span-1",
+            row: "md:row-span-1",
+            img: "https://placehold.co/600x600/FFF7E6/8B5E3C?text=Pure+Soy",
+            link: "/shop?type=soy"
+        },
+        {
+            title: "Gift Sets",
+            col: "md:col-span-1",
+            row: "md:row-span-2",
+            img: "https://placehold.co/600x800/FF9F1C/FFFFFF?text=Gift+Sets",
+            link: "/shop?category=gift"
+        },
+        {
+            title: "Pillars",
+            col: "md:col-span-1",
+            row: "md:row-span-1",
+            img: "https://placehold.co/600x600/8B5E3C/FFF7E6?text=Pillars",
+            link: "/shop?type=pillar"
+        },
     ];
 
     return (
-        <div className="bg-beige min-h-screen font-sans selection:bg-primary selection:text-white" ref={scrollRef}>
-            <SEO
-                title="Home"
-                description="CandlesWithKinzee - Handcrafted, artisanal soy wax candles for your home sanctuary."
-                keywords="boutique candles, soy wax, aromatherapy, luxury home fragrance"
+        <motion.div
+            className="bg-beige min-h-screen text-charcoal font-sans"
+            initial="hidden"
+            animate="visible"
+            variants={containerVariants}
+            ref={containerRef}
+        >
+            <SEO title="CandlesWithKinzee" description="Warm minimalist artisanal candles." />
+
+            {/* Scroll Progress Bar */}
+            <motion.div
+                className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-flame origin-left z-[100]"
+                style={{ scaleX }}
             />
 
-            {/* 1. Full-Width Immersive Hero */}
-            <section className="relative h-screen flex items-center justify-center overflow-hidden">
-                {/* Background Image with Overlay */}
-                <div className="absolute inset-0 z-0">
-                    <img
-                        src={heroImage}
-                        alt="Luxury Candle Background"
-                        className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40"></div>
-                </div>
+            {/* 1. Hero Section: Floating Image + Left Text */}
+            <section className="relative min-h-screen flex items-center px-6 md:px-12 pt-20 overflow-hidden">
+                <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
-                {/* Hero Content */}
-                <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto mt-16">
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="text-5xl md:text-7xl font-serif font-bold tracking-tight mb-6 drop-shadow-lg"
-                    >
-                        Light Your <span className="italic text-primary">Essence</span>
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-                        className="text-lg md:text-2xl text-white/90 font-light mb-10 max-w-2xl mx-auto drop-shadow-md"
-                    >
-                        Hand-poured artisanal soy candles for moments of pure tranquility.
-                    </motion.p>
+                    {/* Text Content (Parallax) */}
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
+                        style={{ y: yHeroText }}
+                        variants={itemVariants}
+                        className="z-10 order-2 md:order-1 text-center md:text-left"
                     >
-                        <Link to="/shop" className="inline-block px-10 py-4 bg-white text-charcoal font-semibold rounded-full hover:bg-primary hover:text-white transition-all duration-300 shadow-xl hover:shadow-2xl hover:-translate-y-1">
-                            Shop the Collection
+                        <span className="block text-primary uppercase tracking-[0.3em] text-xs font-bold mb-6">
+                            Handcrafted in 2024
+                        </span>
+                        <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif leading-tight mb-8 text-charcoal">
+                            Light the <br />
+                            <span className="italic font-light text-brown/80">Moment.</span>
+                        </h1>
+                        <p className="text-lg text-brown/70 font-light mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
+                            Discover the art of slow living with our small-batch, sustainably sourced soy candles.
+                        </p>
+                        <Link to="/shop">
+                            <motion.button
+                                whileHover={{ scale: 1.05, boxShadow: "0 10px 30px -10px rgba(245, 199, 107, 0.5)" }}
+                                whileTap={{ scale: 0.95 }}
+                                className="px-10 py-4 bg-charcoal text-white font-medium rounded-full shadow-2xl hover:bg-primary transition-colors"
+                            >
+                                Shop Collection
+                            </motion.button>
                         </Link>
                     </motion.div>
-                </div>
 
-                {/* Scroll Indicator */}
-                <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/70"
-                >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                </motion.div>
-            </section>
+                    {/* Image Content (Parallax + Float) */}
+                    <div className="order-1 md:order-2 relative flex justify-center">
+                        {/* Background Blob */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-white/40 blur-[80px] rounded-full -z-10" />
 
-            {/* 2. Values / Trust Signals (Horizontal 3-Col) */}
-            <section className="py-16 bg-white border-b border-brown/10">
-                <div className="container mx-auto px-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-brown/10">
-                        <div className="px-4 py-4">
-                            <h3 className="text-xl font-serif font-bold text-charcoal mb-2">Pure Ingredients</h3>
-                            <p className="text-brown/70 text-sm leading-relaxed">100% natural organic soy wax & phthalate-free oils.</p>
-                        </div>
-                        <div className="px-4 py-4">
-                            <h3 className="text-xl font-serif font-bold text-charcoal mb-2">Small Batch</h3>
-                            <p className="text-brown/70 text-sm leading-relaxed">Hand-poured in batches of ten for quality control.</p>
-                        </div>
-                        <div className="px-4 py-4">
-                            <h3 className="text-xl font-serif font-bold text-charcoal mb-2">Eco-Conscious</h3>
-                            <p className="text-brown/70 text-sm leading-relaxed">Reusable vessels and biodegradable packaging.</p>
-                        </div>
+                        <motion.img
+                            style={{ y: yHeroImage }}
+                            src={heroImage}
+                            alt="Floating Hero"
+                            className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl z-10"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 1.5, ease: smoothEase }}
+                        />
                     </div>
                 </div>
             </section>
 
-            {/* 3. Shop by Mood (Bento Grid) - Reduced Padding */}
-            <section className="py-20 bg-beige">
-                <div className="container mx-auto px-4 max-w-6xl">
-                    <div className="flex justify-between items-end mb-10">
-                        <div>
-                            <span className="text-primary font-bold tracking-widest uppercase text-xs">Categories</span>
-                            <h2 className="text-3xl md:text-4xl font-serif font-bold text-charcoal mt-2">Shop by Mood</h2>
-                        </div>
-                        <Link to="/shop" className="hidden md:inline-block text-brown hover:text-primary transition-colors border-b border-secondary">View All &rarr;</Link>
-                    </div>
+            {/* 2. Bento Grid Category Section */}
+            <section className="py-24 px-6">
+                <div className="container mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: "-10% 0px" }}
+                        transition={{ duration: 1, ease: smoothEase }}
+                        className="mb-12 text-center md:text-left"
+                    >
+                        <h2 className="text-3xl md:text-4xl font-serif text-charcoal">Curated Collections</h2>
+                    </motion.div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-4 h-[600px]">
-                        {moods.map((mood, index) => (
-                            <motion.div
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-auto md:h-[600px]">
+                        {bentoItems.map((item, index) => (
+                            <Link
+                                to={item.link}
                                 key={index}
-                                initial={{ opacity: 0, scale: 0.98 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className={`relative group overflow-hidden rounded-2xl shadow-sm ${mood.size}`}
-                                style={{ willChange: 'transform' }}
+                                className={`relative group overflow-hidden rounded-2xl ${item.col} ${item.row} min-h-[250px] md:min-h-0`}
                             >
-                                <Link to={mood.link} className="block h-full w-full">
-                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition duration-500 z-10"></div>
-                                    <img
-                                        src={mood.image}
-                                        alt={mood.name}
-                                        className="w-full h-full object-cover transition duration-700 group-hover:scale-105"
+                                {/* Background Image */}
+                                <div className="absolute inset-0">
+                                    <motion.img
+                                        src={item.img}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover"
+                                        whileHover={{ scale: 1.05 }}
+                                        transition={{ duration: 1.2, ease: "easeOut" }}
                                     />
-                                    <div className="absolute inset-0 flex items-center justify-center z-20">
-                                        <h3 className="text-2xl font-serif text-white font-medium tracking-wide drop-shadow-md">
-                                            {mood.name}
-                                        </h3>
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-700" />
+                                </div>
+
+                                {/* Content Overlay (Backdrop Blur) */}
+                                <div className="absolute bottom-6 left-6 z-10">
+                                    <div className="overflow-hidden rounded-lg">
+                                        <div className="bg-white/30 backdrop-blur-md px-6 py-3 border border-white/20 transition-all duration-500 group-hover:bg-white/40 group-hover:backdrop-blur-xl">
+                                            <h3 className="text-xl md:text-2xl font-serif text-white font-medium tracking-wide">
+                                                {item.title}
+                                            </h3>
+                                        </div>
                                     </div>
-                                </Link>
-                            </motion.div>
+                                </div>
+                            </Link>
                         ))}
                     </div>
-                    <div className="mt-8 text-center md:hidden">
-                        <Link to="/shop" className="text-brown hover:text-primary transition-colors border-b border-secondary">View All &rarr;</Link>
-                    </div>
                 </div>
             </section>
 
-            {/* 4. Best Sellers (Standard Grid, No Parallax Gap) */}
-            <section className="py-20 bg-white">
-                <div className="container mx-auto px-4 max-w-6xl">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-serif font-bold text-charcoal mb-4">Trending Now</h2>
-                        <div className="w-16 h-1 bg-primary mx-auto"></div>
-                    </div>
+            {/* 3. Featured Products */}
+            <section className="py-24 bg-white/50 backdrop-blur-sm">
+                <div className="container mx-auto px-6">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 1 }}
+                        className="flex justify-between items-end mb-16"
+                    >
+                        <div>
+                            <span className="text-primary uppercase tracking-widest text-xs font-bold mb-2 block">Weekly Picks</span>
+                            <h2 className="text-4xl font-serif text-charcoal">Trending Now</h2>
+                        </div>
+                        <Link
+                            to="/shop"
+                            className="hidden md:inline-block border-b border-charcoal pb-1 text-sm font-bold uppercase tracking-widest hover:text-primary hover:border-primary transition-all"
+                        >
+                            View All
+                        </Link>
+                    </motion.div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {featuredProducts.length > 0 ? (
                             featuredProducts.map((product, i) => (
-                                <ProductCard key={product._id} product={product} />
+                                <motion.div
+                                    key={product._id}
+                                    initial={{ opacity: 0, y: 50 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, margin: "-50px" }}
+                                    transition={{ duration: 0.8, delay: i * 0.1, ease: smoothEase }}
+                                >
+                                    <ProductCard product={product} />
+                                </motion.div>
                             ))
                         ) : (
-                            // Fallback skeletal loading/empty state if needed
-                            <p className="col-span-full text-center text-brown/50">Loading best sellers...</p>
+                            // Loading Skeletons
+                            [1, 2, 3, 4].map(n => (
+                                <div key={n} className="animate-pulse space-y-4">
+                                    <div className="bg-neutral-200 aspect-[3/4] rounded-lg"></div>
+                                    <div className="h-4 bg-neutral-200 w-3/4 mx-auto rounded"></div>
+                                    <div className="h-3 bg-neutral-200 w-1/2 mx-auto rounded"></div>
+                                </div>
+                            ))
                         )}
                     </div>
 
-                    <div className="text-center mt-16">
-                        <Link to="/shop" className="px-8 py-3 border border-charcoal text-charcoal font-medium hover:bg-charcoal hover:text-white transition-all rounded-full">
-                            Shop All Candles
-                        </Link>
+                    <div className="mt-12 text-center md:hidden">
+                        <Link to="/shop" className="text-sm font-bold uppercase tracking-widest border-b border-charcoal">View All Products</Link>
                     </div>
                 </div>
             </section>
 
-            {/* 5. Minimal Footer Callout */}
-            <section className="py-16 bg-brown text-beige text-center">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-2xl font-serif mb-4">Join the Inner Circle</h2>
-                    <p className="max-w-md mx-auto text-white/70 mb-8 font-light">Subscribe to receive updates, access to exclusive deals, and more.</p>
-                    <div className="flex max-w-md mx-auto gap-2">
-                        <input type="email" placeholder="Enter your email" className="flex-1 px-4 py-3 rounded-full bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-1 focus:ring-primary" />
-                        <button className="px-6 py-3 bg-primary text-white font-medium rounded-full hover:bg-white hover:text-primary transition-colors">Sign Up</button>
+            {/* 4. Newsletter */}
+            <section className="py-32 px-6 bg-charcoal text-beige flex flex-col items-center justify-center text-center">
+                <motion.div
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, ease: smoothEase }}
+                    className="max-w-xl"
+                >
+                    <h2 className="text-4xl md:text-5xl font-serif mb-6">Join the Inner Circle</h2>
+                    <p className="text-white/60 mb-10 font-light leading-relaxed">
+                        Sign up for exclusive early access to drops, special discounts, and a daily dose of calm.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
+                        <input
+                            type="email"
+                            placeholder="Your email address"
+                            className="flex-1 px-6 py-4 rounded-full bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-primary transition-colors"
+                        />
+                        <button className="px-8 py-4 bg-primary text-white font-bold uppercase tracking-widest text-xs rounded-full hover:bg-white hover:text-charcoal transition-colors">
+                            Subscribe
+                        </button>
                     </div>
-                </div>
+                </motion.div>
             </section>
-        </div>
+        </motion.div>
     );
 };
 

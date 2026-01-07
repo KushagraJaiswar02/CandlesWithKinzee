@@ -50,11 +50,8 @@ const Header = () => {
 
     return (
         <motion.header
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out px-4 sm:px-8 
-                ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm border-b border-shadow/10 py-3' : 'bg-gradient-to-b from-black/60 to-transparent py-6'}`}
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out px-4 sm:px-8 
+                ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-md py-3' : 'bg-gradient-to-b from-black/40 to-transparent py-6'}`}
         >
             <div className="container mx-auto flex justify-between items-center">
 

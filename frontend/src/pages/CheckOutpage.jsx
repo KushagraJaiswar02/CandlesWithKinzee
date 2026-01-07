@@ -375,10 +375,10 @@ const CheckoutPage = () => {
                 <div className="flex flex-col lg:flex-row gap-8">
 
                     {/* 1. Main Form Area */}
-                    <div className="lg:w-3/5 bg-white p-6 md:p-8 rounded-xl shadow-2xl border border-shadow/50">
+                    <div className="lg:w-3/5 p-2 md:p-0">
 
                         {/* Step Indicator */}
-                        <div className="flex justify-between mb-8 pb-4 border-b border-shadow/50">
+                        <div className="flex justify-between mb-12 pb-4 border-b border-brown/10">
                             <StepIndicator step={1} label="Shipping" />
                             <StepIndicator step={2} label="Payment" />
                             <StepIndicator step={3} label="Review" />
@@ -392,26 +392,26 @@ const CheckoutPage = () => {
 
                     {/* 2. Order Summary Sidebar */}
                     <div className="lg:w-2/5 h-fit">
-                        <div className="bg-white p-6 rounded-xl shadow-xl border border-shadow/50 sticky top-24">
-                            <h2 className="text-2xl font-bold text-brown mb-4 border-b pb-3 border-shadow/50">Order Summary</h2>
+                        <div className="bg-white/50 backdrop-blur-sm p-8 rounded-2xl border border-white/50 sticky top-24">
+                            <h2 className="text-2xl font-bold text-brown mb-6">Order Summary</h2>
 
-                            <div className="space-y-3 text-charcoal">
+                            <div className="space-y-4 text-charcoal">
                                 <div className="flex justify-between">
-                                    <span className="text-md">Subtotal:</span>
+                                    <span className="text-md opacity-80">Subtotal</span>
                                     <span className="font-semibold">${subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-md">Shipping:</span>
+                                    <span className="text-md opacity-80">Shipping</span>
                                     <span className="font-semibold text-primary">${shipping.toFixed(2)}</span>
                                 </div>
-                                <div className="flex justify-between border-b border-shadow/50 pb-3">
-                                    <span className="text-md">Taxes (8%):</span>
+                                <div className="flex justify-between border-b border-brown/10 pb-4">
+                                    <span className="text-md opacity-80">Taxes (8%)</span>
                                     <span className="font-semibold">${taxes.toFixed(2)}</span>
                                 </div>
 
-                                <div className="flex justify-between pt-3">
-                                    <span className="text-2xl font-extrabold text-charcoal">Order Total:</span>
-                                    <span className="text-2xl font-extrabold text-flame">${total.toFixed(2)}</span>
+                                <div className="flex justify-between pt-2">
+                                    <span className="text-xl font-bold text-charcoal">Total</span>
+                                    <span className="text-3xl font-serif text-flame">${total.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

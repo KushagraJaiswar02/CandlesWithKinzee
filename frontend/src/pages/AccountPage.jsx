@@ -467,8 +467,8 @@ const ProfilePage = () => {
             onClick={() => setActiveSection(section)}
             className={`flex items-center space-x-3 w-full p-3 rounded-lg font-medium transition duration-200 
                 ${activeSection === section
-                    ? 'bg-flame text-white shadow-md'
-                    : 'text-charcoal hover:bg-beige hover:text-brown'
+                    ? 'text-flame bg-flame/10'
+                    : 'text-charcoal/70 hover:text-brown hover:bg-brown/5'
                 }`
             }
         >
@@ -498,7 +498,7 @@ const ProfilePage = () => {
                     </h1>
                 </div>
                 <div className="flex flex-col lg:flex-row gap-8">
-                    <div className="lg:w-1/4 bg-white p-6 rounded-xl shadow-xl border border-shadow/50 h-fit">
+                    <div className="lg:w-1/4 h-fit border-b lg:border-b-0 lg:border-r border-brown/10 pb-6 lg:pb-0 lg:pr-6">
                         <nav className="space-y-2">
                             <NavButton
                                 section="profile"
@@ -512,7 +512,7 @@ const ProfilePage = () => {
                     </div>
                     <motion.div
                         key={activeSection}
-                        className="lg:w-3/4 bg-white p-8 rounded-xl shadow-xl border border-shadow/50"
+                        className="lg:w-3/4 pl-0 lg:pl-6"
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.4 }}
