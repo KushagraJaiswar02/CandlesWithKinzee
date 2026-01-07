@@ -11,12 +11,16 @@ connectDB();
 
 const app = express();
 
+app.get('/', (req, res) => {
+    res.send('API is running...');
+});
+
 // Middleware
 app.use(express.json()); // Body parser
 
 // CORS Configuration
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || '*', // Default to allow all in development if not set
+    origin: process.env.FRONTEND_URL || '*', // Set FRONTEND_URL in production (e.g., in Vercel/Render)
     credentials: true,
 };
 app.use(cors(corsOptions));

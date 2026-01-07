@@ -10,15 +10,8 @@ const generatePlaceholderUrl = (name) => {
 };
 
 export default function ProductCard({ product }) {
+    // Use direct URL from Cloudinary or fallback
     let imageUrl = product?.image || generatePlaceholderUrl(product?.name || 'Default Candle');
-
-    // Fix for Windows paths and relative URLs
-    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
-        imageUrl = imageUrl.replace(/\\/g, '/');
-        if (!imageUrl.startsWith('/')) {
-            imageUrl = `/${imageUrl}`;
-        }
-    }
 
     return (
         <motion.div
@@ -35,6 +28,7 @@ export default function ProductCard({ product }) {
                     src={imageUrl}
                     alt={product?.name}
                     className="w-full h-full object-cover origin-center"
+                    onError={(e) => { e.target.onerror = null; e.target.src = generatePlaceholderUrl(product?.name || 'Candle'); }}
                     variants={{
                         idle: { scale: 1 },
                         hover: { scale: 1.05 }

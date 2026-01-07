@@ -3,14 +3,7 @@ const express = require('express');
 const multer = require('multer');
 const router = express.Router();
 
-const storage = multer.diskStorage({
-    destination(req, file, cb) {
-        cb(null, 'uploads/');
-    },
-    filename(req, file, cb) {
-        cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
-    },
-});
+const { storage } = require('../config/cloudinary');
 
 function checkFileType(file, cb) {
     const filetypes = /jpg|jpeg|png/;
@@ -26,19 +19,12 @@ function checkFileType(file, cb) {
 
 const upload = multer({
     storage,
-    fileFilter: function (req, file, cb) {
-        checkFileType(file, cb);
-    },
+    // Cloudinary handles file types, but good to double check or rely on allowed_formats in config
 });
 
 router.post('/', upload.single('image'), (req, res) => {
-    // Normalize path separators to forward slashes for URL compatibility
-    const normalizedPath = req.file.path.replace(/\\/g, '/');
-    // Return relative path (e.g., /uploads/image.jpg) so frontend can use proxy or base URL
-    // Ensure we strip 'backend/' if it somehow got in there, or just ensure it starts with /uploads
-    const relativePath = normalizedPath.startsWith('uploads/') ? `/${normalizedPath}` : `/uploads/${path.basename(normalizedPath)}`;
-
-    res.json({ image: relativePath });
+    // Return absolute Cloudinary URL directly
+    res.json({ image: req.file.path });
 });
 
 module.exports = router;

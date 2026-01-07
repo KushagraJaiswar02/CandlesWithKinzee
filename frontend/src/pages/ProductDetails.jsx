@@ -166,24 +166,13 @@ const ProductDetailPage = () => {
                             transition={{ duration: 0.6 }}
                             className="relative w-full aspect-[4/5] lg:aspect-square bg-stone-50 rounded-[2rem] overflow-hidden"
                         >
-                            {/* Logic for Image URL - Inline */}
-                            {(() => {
-                                let imageUrl = product.image;
-                                if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
-                                    imageUrl = imageUrl.replace(/\\/g, '/');
-                                    if (!imageUrl.startsWith('/')) {
-                                        imageUrl = `/${imageUrl}`;
-                                    }
-                                }
-                                return (
-                                    <img
-                                        src={imageUrl}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover mix-blend-multiply opacity-95"
-                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
-                                    />
-                                );
-                            })()}
+                            {/* Direct Cloudinary URL */}
+                            <img
+                                src={product.image || "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail"}
+                                alt={product.name}
+                                className="w-full h-full object-cover mix-blend-multiply opacity-95"
+                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
+                            />
                         </motion.div>
                     </div>
 

@@ -16,11 +16,17 @@ const ProductListingPage = () => {
         const fetchProducts = async () => {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/products`);
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        console.error(`Status 404: Endpoint not found. Check if '${API_BASE_URL}/api/products' is correct.`);
+                    }
+                    throw new Error(`API Error: ${res.status} ${res.statusText}`);
+                }
                 const data = await res.json();
                 setProducts(data);
                 setLoading(false);
             } catch (error) {
-                console.error(error);
+                console.error("Failed to fetch products:", error.message);
                 setLoading(false);
             }
         };
