@@ -40,7 +40,15 @@ const generatePlaceholderUrl = (name) => {
 // --- Reusable Product Card Component ---
 export default function ProductCard({ product }) {
 
-    const imageUrl = product?.image || generatePlaceholderUrl(product?.name || 'Default Candle');
+    let imageUrl = product?.image || generatePlaceholderUrl(product?.name || 'Default Candle');
+
+    // Fix for Windows paths and relative URLs
+    if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+        imageUrl = imageUrl.replace(/\\/g, '/');
+        if (!imageUrl.startsWith('/')) {
+            imageUrl = `/${imageUrl}`;
+        }
+    }
 
     return (
         <motion.div

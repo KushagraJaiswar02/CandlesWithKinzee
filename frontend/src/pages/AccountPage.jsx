@@ -323,17 +323,49 @@ const ProfilePage = () => {
     );
 
     // Default Order Component reuse (Simplified)
+    // Helper to dynamically load Razorpay script
+    const loadRazorpay = () => {
+        return new Promise((resolve) => {
+            if (window.Razorpay) {
+                resolve(true);
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => {
+                resolve(true);
+            };
+            script.onerror = () => {
+                resolve(false);
+            };
+            document.body.appendChild(script);
+        });
+    };
+
     const handleRetryPayment = async (order) => {
         try {
-            // 1. Create Razorpay Order (using existing backend order)
+            // 1. Load Razorpay Script
+            const resScript = await loadRazorpay();
+            if (!resScript) {
+                throw new Error('Razorpay SDK failed to load. Check your internet connection.');
+            }
+
+            // 2. Create Razorpay Order (using existing backend order)
             const payRes = await fetch(`/api/orders/pay/${order._id}`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${user.token}` }
             });
-            const paymentData = await payRes.json();
+
+            let paymentData;
+            try {
+                paymentData = await payRes.json();
+            } catch (error) {
+                throw new Error(`Server Error: (${payRes.status})`);
+            }
+
             if (!payRes.ok) throw new Error(paymentData.message || 'Failed to initiate payment');
 
-            // 2. Open Razorpay
+            // 3. Open Razorpay
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
                 amount: paymentData.amount,

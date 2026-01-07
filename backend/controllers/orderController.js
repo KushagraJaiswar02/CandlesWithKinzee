@@ -132,8 +132,9 @@ const createRazorpayOrder = async (req, res) => {
 
             res.json(razorpayOrder);
         } catch (error) {
+            console.error('[Razorpay Error]:', error); // Log full error object
             res.status(500);
-            throw new Error(error.message);
+            throw new Error(error.error && error.error.description ? error.error.description : error.message);
         }
     } else {
         res.status(404);

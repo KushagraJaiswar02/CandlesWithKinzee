@@ -145,6 +145,8 @@ const ProductDetailPage = () => {
                 image={product.image}
             />
 
+            {/* Helper to normalize params - Logic moved inside */}
+
             {/* Navigation (Floating) */}
             <div className="fixed top-24 left-6 z-40 lg:absolute lg:top-10 lg:left-10">
                 <Link to="/shop" className="group flex items-center gap-3 text-charcoal/80 hover:text-black transition text-sm font-medium tracking-wide bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-full shadow-sm border border-neutral-100">
@@ -164,12 +166,24 @@ const ProductDetailPage = () => {
                             transition={{ duration: 0.6 }}
                             className="relative w-full aspect-[4/5] lg:aspect-square bg-stone-50 rounded-[2rem] overflow-hidden"
                         >
-                            <img
-                                src={product.image}
-                                alt={product.name}
-                                className="w-full h-full object-cover mix-blend-multiply opacity-95"
-                                onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
-                            />
+                            {/* Logic for Image URL - Inline */}
+                            {(() => {
+                                let imageUrl = product.image;
+                                if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                                    imageUrl = imageUrl.replace(/\\/g, '/');
+                                    if (!imageUrl.startsWith('/')) {
+                                        imageUrl = `/${imageUrl}`;
+                                    }
+                                }
+                                return (
+                                    <img
+                                        src={imageUrl}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover mix-blend-multiply opacity-95"
+                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
+                                    />
+                                );
+                            })()}
                         </motion.div>
                     </div>
 
@@ -284,10 +298,10 @@ const ProductDetailPage = () => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* --- REVIEWS SECTION --- */}
-            <motion.div
+            < motion.div
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
@@ -415,7 +429,7 @@ const ProductDetailPage = () => {
                     </div>
                 </div>
             </motion.div>
-        </motion.div>
+        </motion.div >
     );
 };
 

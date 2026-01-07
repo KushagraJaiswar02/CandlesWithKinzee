@@ -51,6 +51,25 @@ const CheckoutPage = () => {
         setShippingAddress({ ...shippingAddress, [e.target.name]: e.target.value });
     };
 
+    // Helper to dynamically load Razorpay script
+    const loadRazorpay = () => {
+        return new Promise((resolve) => {
+            if (window.Razorpay) {
+                resolve(true);
+                return;
+            }
+            const script = document.createElement('script');
+            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.onload = () => {
+                resolve(true);
+            };
+            script.onerror = () => {
+                resolve(false);
+            };
+            document.body.appendChild(script);
+        });
+    };
+
     const handlePlaceOrder = async () => {
         if (!user) {
             addToast('Please login to place an order', 'error');
@@ -105,20 +124,41 @@ const CheckoutPage = () => {
                 })
             });
 
-            const order = await orderRes.json();
+            // Robust JSON parsing
+            let order;
+            try {
+                order = await orderRes.json();
+            } catch (jsonErr) {
+                const text = await orderRes.text();
+                throw new Error(`Server Error: ${orderRes.statusText} (${orderRes.status})`);
+            }
+
             if (!orderRes.ok) throw new Error(order.message || 'Failed to create order');
 
-            // 2. Create Razorpay Order
+            // 2. Load Razorpay Script
+            const res = await loadRazorpay();
+            if (!res) {
+                throw new Error('Razorpay SDK failed to load. Check your internet connection.');
+            }
+
+            // 3. Create Razorpay Order
             const payRes = await fetch(`http://localhost:5001/api/orders/pay/${order._id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${user.token}`
                 }
             });
-            const paymentData = await payRes.json();
+
+            let paymentData;
+            try {
+                paymentData = await payRes.json();
+            } catch (jsonErr) {
+                throw new Error(`Payment Initiation Failed: Server Error (${payRes.status})`);
+            }
+
             if (!payRes.ok) throw new Error(paymentData.message || 'Failed to initiate payment');
 
-            // 3. Open Razorpay
+            // 4. Open Razorpay
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
                 amount: paymentData.amount,
