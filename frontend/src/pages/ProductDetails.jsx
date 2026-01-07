@@ -7,7 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { useCart } from '../context/CartContext';
 import SEO from '../components/SEO.jsx';
 import AuthContext from '../context/AuthContext';
-import API_BASE_URL from '../config/api';
+import { getValidImageUrl } from '../utils/imageHelper';
 
 // --- Clean "Star" Component ---
 const StarRating = ({ rating }) => {
@@ -42,7 +42,7 @@ const ProductDetailPage = () => {
     const fetchProduct = async () => {
         try {
             const res = await fetch(`/api/products/${id}`);
-            if (!res.ok) throw new Error(`API Error: ${res.status}`);
+            if (!res.ok) throw new Error('Product not found');
             // Check content-type
             const contentType = res.headers.get("content-type");
             if (!contentType || !contentType.includes("application/json")) {
@@ -175,16 +175,7 @@ const ProductDetailPage = () => {
                         >
                             {/* Direct Cloudinary URL */}
                             {(() => {
-                                let displayImage = product.image;
-                                // 1. Extract from Object
-                                if (displayImage && typeof displayImage === 'object') {
-                                    displayImage = displayImage.secure_url || displayImage.url || displayImage.image;
-                                }
-                                // 2. Prepend Base URL if local
-                                if (displayImage && typeof displayImage === 'string' && !displayImage.startsWith('http') && !displayImage.startsWith('data:')) {
-                                    const cleanPath = displayImage.startsWith('/') ? displayImage : `/${displayImage}`;
-                                    displayImage = `${API_BASE_URL}${cleanPath}`;
-                                }
+                                const displayImage = getValidImageUrl(product.image);
                                 return (
                                     <img
                                         src={displayImage || "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail"}

@@ -23,8 +23,8 @@ const upload = multer({
 });
 
 router.post('/', upload.single('image'), (req, res) => {
-    // Return absolute Cloudinary URL directly
-    res.json({ image: req.file.path });
+    // Return absolute Cloudinary URL directly as string
+    res.send(req.file.path);
 });
 
 module.exports = router;

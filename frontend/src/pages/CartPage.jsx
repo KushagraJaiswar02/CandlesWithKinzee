@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEO from '../components/SEO.jsx';
 import { useCart } from '../context/CartContext';
+import { getValidImageUrl } from '../utils/imageHelper';
 
 // Minimalist Cart Item
 const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
@@ -17,7 +18,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }) => {
         >
             <div className="w-full sm:w-24 h-32 bg-neutral-100 shrink-0">
                 <img
-                    src={item.image}
+                    src={getValidImageUrl(item.image)}
                     alt={item.name}
                     className="w-full h-full object-cover"
                     onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/100x120/E5E5E5/A3A3A3?text=Candle" }}

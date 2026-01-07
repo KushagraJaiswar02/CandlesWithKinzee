@@ -9,6 +9,7 @@ import { useCart } from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import API_BASE_URL from '../config/api';
+import { getValidImageUrl } from '../utils/imageHelper';
 
 // Placeholder Icons
 const LockIcon = () => '🔒'; // For security
@@ -112,7 +113,7 @@ const CheckoutPage = () => {
                     orderItems: cartItems.map((item) => ({
                         product: item._id,
                         name: item.name,
-                        image: item.image,
+                        image: getValidImageUrl(item.image),
                         price: item.price,
                         quantity: item.quantity,
                     })),

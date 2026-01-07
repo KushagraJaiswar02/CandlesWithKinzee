@@ -188,8 +188,8 @@ const EditProductPage = () => {
                                                     body: formData,
                                                 });
                                                 if (!res.ok) throw new Error('Upload Failed');
-                                                const data = await res.json();
-                                                setImage(data.image);
+                                                const data = await res.text();
+                                                setImage(data);
                                                 setUpdating(false);
                                                 addToast('Image Uploaded', 'success');
                                             } catch (error) {
