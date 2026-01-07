@@ -18,12 +18,44 @@ app.get('/', (req, res) => {
 // Middleware
 app.use(express.json()); // Body parser
 
-// CORS Configuration
+
+
+// List all allowed origins here
+const allowedOrigins = [
+    'https://candles-with-kinzee.vercel.app', // Your main production URL
+    'http://localhost:5173',                  // Local development
+    /\.vercel\.app$/                          // Regex to allow all Vercel preview subdomains
+];
+
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || '*', // Set FRONTEND_URL in production (e.g., in Vercel/Render)
-    credentials: true,
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+
+        const isAllowed = allowedOrigins.some((allowed) => {
+            if (allowed instanceof RegExp) {
+                return allowed.test(origin); // Test origin against regex
+            }
+            return allowed === origin; // Compare strings directly
+        });
+
+        if (isAllowed) {
+            callback(null, true);
+        } else {
+            callback(new Error('Blocked by CORS policy'));
+        }
+    },
+    credentials: true, // Required for sending cookies or auth headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Explicitly allow necessary methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allow specific headers
+    optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 };
+
+// Apply CORS middleware
 app.use(cors(corsOptions));
+
+// Explicitly handle preflight OPTIONS requests for all routes
+app.options('*', cors(corsOptions));
 
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
