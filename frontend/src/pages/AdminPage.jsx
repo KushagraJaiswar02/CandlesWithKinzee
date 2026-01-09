@@ -147,7 +147,6 @@ const AdminDashboard = () => {
             countInStock: product.countInStock,
             category: product.category,
             description: product.description,
-            description: product.description,
             image: (product.image && typeof product.image === 'object')
                 ? (product.image.secure_url || product.image.url || product.image.image)
                 : (product.image || '')

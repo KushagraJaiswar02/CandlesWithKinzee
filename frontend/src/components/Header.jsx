@@ -15,7 +15,7 @@ const Header = () => {
     const { user, logout } = React.useContext(AuthContext);
     const navigate = useNavigate();
     const { addToast } = useToast();
-    const { cartCount } = useCart();
+    const { cartCount, clearCart } = useCart();
 
     const { scrollY } = useScroll();
 
@@ -34,6 +34,7 @@ const Header = () => {
 
     const handleLogout = () => {
         logout();
+        clearCart();
         addToast('Logged out successfully', 'info');
         navigate('/');
     };
@@ -168,7 +169,18 @@ const Header = () => {
                 </div>
 
                 {/* Mobile Menu Toggle */}
-                <div className="md:hidden z-50">
+                <div className="md:hidden z-50 flex items-center gap-4">
+                    {/* Cloudinary Cart Icon for Mobile */}
+                    {user && !user.isAdmin && (
+                        <Link to="/cart" className={`relative p-1 transition-colors ${textColorClass}`} title="Cart">
+                            <ShoppingCartIcon />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-flame text-[10px] text-white font-bold">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
+                    )}
                     <button onClick={() => setIsOpen(!isOpen)} className={`${textColorClass}`}>
                         {isOpen ? <XIcon /> : <MenuIcon />}
                     </button>
