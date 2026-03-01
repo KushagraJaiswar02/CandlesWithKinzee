@@ -39,7 +39,7 @@ const addressSchema = z.object({
     label: z.string().max(50).optional(),
     street: z.string().max(200),
     city: z.string().max(100),
-    state: z.string().max(100),
+    state: z.string().max(100).optional(),
     postalCode: z.string().max(20),
     country: z.string().max(100),
     isDefault: z.boolean().optional(),
