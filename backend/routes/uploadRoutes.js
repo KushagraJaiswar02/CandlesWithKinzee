@@ -4,27 +4,20 @@ const multer = require('multer');
 const router = express.Router();
 
 const { storage } = require('../config/cloudinary');
+const { apiLimiter } = require('../middlewares/rateLimiter');
 
-function checkFileType(file, cb) {
-    const filetypes = /jpg|jpeg|png/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
+const upload = multer({ storage });
 
-    if (extname && mimetype) {
-        return cb(null, true);
-    } else {
-        cb('Images only!');
+// POST /api/upload
+// FIX: res.json() sets Content-Type: application/json — prevents reflected XSS
+// that res.send(string) causes by defaulting to text/html
+router.post('/', apiLimiter, upload.single('image'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
     }
-}
-
-const upload = multer({
-    storage,
-    // Cloudinary handles file types, but good to double check or rely on allowed_formats in config
-});
-
-router.post('/', upload.single('image'), (req, res) => {
-    // Return absolute Cloudinary URL directly as string
-    res.send(req.file.path);
+    // Return as JSON — never interpreted as HTML by the browser
+    res.status(200).json({ url: req.file.path });
 });
 
 module.exports = router;
+

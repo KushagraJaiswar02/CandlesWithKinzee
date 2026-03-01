@@ -269,8 +269,8 @@ const AdminDashboard = () => {
                                                 body: formData,
                                             });
                                             if (!res.ok) throw new Error('Upload Failed');
-                                            const data = await res.text();
-                                            setProductForm({ ...productForm, image: data });
+                                            const data = await res.json();
+                                            setProductForm({ ...productForm, image: data.url });
                                             setLoading(false);
                                         } catch (error) {
                                             console.error(error);

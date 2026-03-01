@@ -97,10 +97,10 @@ const ProfilePage = () => {
                 method: 'POST',
                 body: formData,
             });
-            const data = await res.text();
+            const data = await res.json();
 
             if (res.ok) {
-                setProfileForm({ ...profileForm, profileImage: data });
+                setProfileForm({ ...profileForm, profileImage: data.url });
                 addToast('Image Uploaded', 'success');
             } else {
                 addToast('Image upload failed', 'error');
