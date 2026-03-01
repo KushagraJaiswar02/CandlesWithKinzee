@@ -10,6 +10,7 @@ const RegisterPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const { register } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -17,14 +18,34 @@ const RegisterPage = () => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    setFieldErrors({});
+
+    // Client-side check before hitting API
+    if (password.length < 8) {
+      setFieldErrors({ password: 'Password must be at least 8 characters' });
+      return;
+    }
+
     const result = await register(name, email, password);
     if (result.success) {
       addToast('Registration successful', 'success');
       navigate('/');
     } else {
-      addToast(result.message, 'error');
+      // Map backend Zod errors to field-level display
+      if (result.errors && result.errors.length > 0) {
+        const mapped = {};
+        result.errors.forEach((err) => { mapped[err.field] = err.message; });
+        setFieldErrors(mapped);
+      } else {
+        addToast(result.message, 'error');
+      }
     }
   };
+
+  const inputClass = (field) =>
+    `w-full p-3 border rounded-lg focus:ring-primary focus:border-primary focus:outline-none transition duration-150 ${
+      fieldErrors[field] ? 'border-red-400 bg-red-50' : 'border-shadow'
+    }`;
 
   return (
     <div className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-beige p-4">
@@ -37,7 +58,7 @@ const RegisterPage = () => {
           Join the CandlesWithKinzee family.
         </p>
 
-        <form onSubmit={submitHandler} className="space-y-6">
+        <form onSubmit={submitHandler} className="space-y-5">
 
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-charcoal mb-1">Full Name</label>
@@ -47,9 +68,10 @@ const RegisterPage = () => {
               placeholder="Jane Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary focus:outline-none transition duration-150"
+              className={inputClass('name')}
               required
             />
+            {fieldErrors.name && <p className="text-red-500 text-xs mt-1">{fieldErrors.name}</p>}
           </div>
 
           <div>
@@ -60,9 +82,10 @@ const RegisterPage = () => {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary focus:outline-none transition duration-150"
+              className={inputClass('email')}
               required
             />
+            {fieldErrors.email && <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>}
           </div>
 
           <div>
@@ -70,12 +93,16 @@ const RegisterPage = () => {
             <input
               type="password"
               id="password"
-              placeholder="Secure Password"
+              placeholder="Min. 8 characters"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary focus:outline-none transition duration-150"
+              onChange={(e) => { setPassword(e.target.value); if (fieldErrors.password) setFieldErrors(f => ({ ...f, password: null })); }}
+              className={inputClass('password')}
               required
             />
+            {fieldErrors.password
+              ? <p className="text-red-500 text-xs mt-1">{fieldErrors.password}</p>
+              : <p className="text-charcoal/50 text-xs mt-1">Minimum 8 characters</p>
+            }
           </div>
 
           <button

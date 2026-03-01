@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
                 setUser(data);
                 return { success: true };
             } else {
-                return { success: false, message: data.message || 'Registration failed' };
+                return { success: false, message: data.message || 'Registration failed', errors: data.errors || [] };
             }
         } catch (error) {
             return { success: false, message: error.message };
