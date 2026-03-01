@@ -22,19 +22,20 @@ const {
     updateReviewSchema,
 } = require('../validators/productValidator');
 const { mongoIdParamSchema } = require('../validators/commonValidator');
+const { apiLimiter } = require('../middlewares/rateLimiter');
 
-router.route('/categories').get(getCategories);
+router.route('/categories').get(apiLimiter, getCategories);
 router.route('/')
-    .get(validate(productQuerySchema, 'query'), getProducts)
-    .post(protect, admin, validate(createProductSchema), createProduct);
-router.route('/history').get(protect, admin, getDeletedProducts);
+    .get(apiLimiter, validate(productQuerySchema, 'query'), getProducts)
+    .post(protect, admin, apiLimiter, validate(createProductSchema), createProduct);
+router.route('/history').get(protect, admin, apiLimiter, getDeletedProducts);
 router.route('/:id/reviews')
-    .post(protect, validate(mongoIdParamSchema, 'params'), validate(createReviewSchema), createProductReview)
-    .put(protect, validate(mongoIdParamSchema, 'params'), validate(updateReviewSchema), updateProductReview)
-    .delete(protect, validate(mongoIdParamSchema, 'params'), deleteProductReview);
+    .post(protect, apiLimiter, validate(mongoIdParamSchema, 'params'), validate(createReviewSchema), createProductReview)
+    .put(protect, apiLimiter, validate(mongoIdParamSchema, 'params'), validate(updateReviewSchema), updateProductReview)
+    .delete(protect, apiLimiter, validate(mongoIdParamSchema, 'params'), deleteProductReview);
 router.route('/:id')
-    .get(validate(mongoIdParamSchema, 'params'), getProductById)
-    .delete(protect, admin, validate(mongoIdParamSchema, 'params'), deleteProduct)
-    .put(protect, admin, validate(mongoIdParamSchema, 'params'), validate(updateProductSchema), updateProduct);
+    .get(apiLimiter, validate(mongoIdParamSchema, 'params'), getProductById)
+    .delete(protect, admin, apiLimiter, validate(mongoIdParamSchema, 'params'), deleteProduct)
+    .put(protect, admin, apiLimiter, validate(mongoIdParamSchema, 'params'), validate(updateProductSchema), updateProduct);
 
 module.exports = router;
