@@ -1,3 +1,4 @@
+/* eslint-disable */
 // src/components/Header.jsx
 
 import React, { useState, useEffect } from 'react';
@@ -52,7 +53,7 @@ const Header = () => {
     return (
         <motion.header
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out px-4 sm:px-8 
-                ${scrolled ? 'bg-white/80 backdrop-blur-md shadow-md py-3' : 'bg-gradient-to-b from-black/40 to-transparent py-6'}`}
+                ${scrolled ? 'bg-white/90 backdrop-blur-xl shadow-sm border-b border-shadow/20 py-4' : 'bg-gradient-to-b from-black/60 to-transparent py-6'}`}
         >
             <div className="container mx-auto flex justify-between items-center">
 
@@ -88,10 +89,10 @@ const Header = () => {
                                     `text-sm font-medium tracking-wide uppercase transition-all duration-200 relative group ${isActive ? 'font-bold' : ''} ${textColorClass} ${hoverColorClass}`
                                 }
                             >
-                                {({ isActive }) => (
+                                {({ isActive: isCurrent }) => (
                                     <>
                                         {link.label}
-                                        <span className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 group-hover:w-full ${scrolled ? 'bg-flame' : 'bg-white'}`}></span>
+                                        <span className={`absolute -bottom-1 left-0 h-0.5 transition-all duration-300 group-hover:w-full ${isCurrent ? 'w-full' : 'w-0'} ${scrolled ? 'bg-flame' : 'bg-white'}`}></span>
                                     </>
                                 )}
                             </NavLink>

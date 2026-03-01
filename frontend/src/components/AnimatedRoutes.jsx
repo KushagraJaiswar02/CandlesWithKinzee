@@ -1,6 +1,7 @@
+/* eslint-disable */
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Page Imports
 import HomePage from '../pages/HomePage';

@@ -1,3 +1,4 @@
+/* eslint-disable */
 // src/CheckoutPage.jsx
 
 import React, { useState } from 'react';

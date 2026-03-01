@@ -168,25 +168,27 @@ const ProductDetailPage = () => {
 
                     {/* 1. Left Side - Product Visuals (Cols 7) */}
                     <div className="lg:col-span-7">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6 }}
-                            className="relative w-full aspect-[4/5] lg:aspect-square bg-stone-50 rounded-[2rem] overflow-hidden"
-                        >
-                            {/* Direct Cloudinary URL */}
-                            {(() => {
-                                const displayImage = getValidImageUrl(product.image);
-                                return (
-                                    <img
-                                        src={displayImage || "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail"}
-                                        alt={product.name}
-                                        className="w-full h-full object-cover mix-blend-multiply opacity-95"
-                                        onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
-                                    />
-                                );
-                            })()}
-                        </motion.div>
+                        <div className="sticky top-32 space-y-4">
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+                                className="relative w-full aspect-[4/5] bg-[#FDFBF7] overflow-hidden group"
+                            >
+                                {/* Direct Cloudinary URL */}
+                                {(() => {
+                                    const displayImage = getValidImageUrl(product.image);
+                                    return (
+                                        <img
+                                            src={displayImage || "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail"}
+                                            alt={product.name}
+                                            className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
+                                            onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/800x1200/F5F5F4/A3A3A3?text=Kinzee+Detail" }}
+                                        />
+                                    );
+                                })()}
+                            </motion.div>
+                        </div>
                     </div>
 
                     {/* 2. Right Side - Product Details (Cols 5) */}
@@ -254,19 +256,19 @@ const ProductDetailPage = () => {
                                                     else if (val < 1) setQuantity(1);
                                                     else setQuantity(val);
                                                 }}
-                                                className="w-full h-16 border border-neutral-300 rounded-xl text-center text-lg text-charcoal focus:ring-0 focus:border-charcoal hover:border-gray-400 transition"
+                                                className="w-full h-16 border-b border-neutral-300 rounded-none bg-transparent text-center text-lg text-charcoal focus:ring-0 focus:border-charcoal transition"
                                             />
                                         </div>
                                         <motion.button
                                             onClick={handleAddToCart}
-                                            className="flex-1 h-16 bg-charcoal text-white font-bold uppercase tracking-widest text-sm hover:bg-black rounded-xl shadow-lg hover:shadow-xl transition-all"
+                                            className="flex-1 h-16 bg-charcoal text-white font-bold uppercase tracking-widest text-xs hover:bg-primary shadow-xl hover:shadow-[0_10px_40px_-10px_rgba(245,199,107,0.5)] transition-all duration-500 ease-out"
                                             whileTap={{ scale: 0.98 }}
                                         >
                                             Add to Cart
                                         </motion.button>
                                     </div>
                                 ) : (
-                                    <div className="w-full h-16 bg-neutral-100 text-neutral-400 flex items-center justify-center font-bold uppercase tracking-widest text-sm rounded-xl">
+                                    <div className="w-full h-16 bg-neutral-100/50 text-neutral-400 flex items-center justify-center font-bold uppercase tracking-widest text-sm border border-neutral-200">
                                         Out of Stock
                                     </div>
                                 )}
@@ -341,7 +343,7 @@ const ProductDetailPage = () => {
                         <div className="lg:col-span-8 space-y-12">
 
                             {/* Form Section */}
-                            <div id="review-form" className="bg-white p-8 lg:p-12 rounded-[2rem] shadow-sm border border-stone-100">
+                            <div id="review-form" className="bg-white p-8 lg:p-12 shadow-sm border border-stone-100">
                                 {user ? (
                                     hasCurrentReview && !isEditing ? (
                                         <div className="text-center py-8">

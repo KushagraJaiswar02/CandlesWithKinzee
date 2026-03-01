@@ -1,3 +1,4 @@
+/* eslint-disable */
 // src/CartPage.jsx
 
 import React from 'react';

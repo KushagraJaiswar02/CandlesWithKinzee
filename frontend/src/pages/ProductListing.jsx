@@ -45,26 +45,6 @@ const ProductListingPage = () => {
     const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
     const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
 
-    // --- Framer Motion Variants ---
-    const sidebarVariants = {
-        hidden: { x: '-100%', opacity: 0, transition: { type: "tween" } },
-        visible: { x: '0%', opacity: 1, transition: { type: "spring", stiffness: 100, damping: 20 } },
-    };
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.07,
-            }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { y: 20, opacity: 0 },
-        visible: { y: 0, opacity: 1 }
-    };
 
     return (
         <div className="bg-white min-h-screen">
@@ -100,7 +80,7 @@ const ProductListingPage = () => {
                             onClick={() => setFilterOpen(!filterOpen)}
                             className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-charcoal hover:text-primary transition-colors"
                         >
-                            <span className="text-lg">{filterOpen ? '−' : '+'}</span>
+                            <span className="text-lg font-light">{filterOpen ? '−' : '+'}</span>
                             {filterOpen ? 'Hide Filters' : 'Show Filters'}
                         </button>
 
@@ -110,8 +90,8 @@ const ProductListingPage = () => {
 
                     {/* Sort Dropdown */}
                     <div className="flex items-center gap-3 mt-4 md:mt-0 w-full md:w-auto justify-end">
-                        <span className="text-xs text-brown/60 uppercase tracking-wide">Sort by</span>
-                        <select className="text-sm bg-transparent border-none focus:ring-0 text-charcoal font-medium cursor-pointer p-0 pr-8">
+                        <span className="text-xs text-brown/60 uppercase tracking-widest">Sort by</span>
+                        <select className="text-sm bg-transparent border-none focus:ring-0 text-charcoal font-medium cursor-pointer p-0 pr-6 hover:text-primary transition-colors">
                             <option>Best Selling</option>
                             <option>Newest</option>
                             <option>Price: Low to High</option>
@@ -187,7 +167,7 @@ const ProductListingPage = () => {
                     <main className="flex-1 w-full min-w-0">
                         <motion.div
                             layout
-                            className={`grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 ${filterOpen ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'}`}
+                            className={`grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 ${filterOpen ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}
                         >
                             <AnimatePresence>
                                 {products.length > 0 ? products.map(product => (
