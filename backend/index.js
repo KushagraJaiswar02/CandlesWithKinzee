@@ -6,6 +6,25 @@ const connectDB = require('./config/db');
 // Load env vars
 dotenv.config();
 
+const REQUIRED_ENV_VARS = [
+    'MONGO_URI',
+    'JWT_SECRET',
+    'CLOUDINARY_CLOUD_NAME',
+    'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET',
+    'RAZORPAY_KEY_ID',
+    'RAZORPAY_KEY_SECRET',
+];
+
+const missingVars = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
+if (missingVars.length > 0) {
+    console.error('\n❌  Missing required environment variables:');
+    missingVars.forEach((key) => console.error(`    • ${key}`));
+    console.error('\nAdd them to your .env file and restart the server.\n');
+    process.exit(1);
+}
+
+
 // Connect to database
 connectDB();
 
@@ -22,9 +41,9 @@ app.use(express.json()); // Body parser
 
 // List all allowed origins here
 const allowedOrigins = [
-    'https://candles-with-kinzee.vercel.app', // Your main production URL
-    'http://localhost:5173',                  // Local development
-    /\.vercel\.app$/                          // Regex to allow all Vercel preview subdomains
+    'https://candles-with-kinzee.vercel.app',
+    'http://localhost:5173',                  
+    /\.vercel\.app$/                          
 ];
 
 const corsOptions = {
@@ -57,9 +76,7 @@ app.use(cors(corsOptions));
 // Explicitly handle preflight OPTIONS requests for all routes
 app.options('/*path', cors(corsOptions));
 
-// ── Rate Limiting ─────────────────────────────────────────────────────────────
-// Global fallback limiter — ensures CodeQL taint analysis sees ALL routes
-// as rate-limited. Individual route limiters provide stricter per-route control.
+
 const { apiLimiter } = require('./middlewares/rateLimiter');
 app.use('/api', apiLimiter);
 
