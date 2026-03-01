@@ -24,7 +24,7 @@ export default function ProductCard({ product }) {
             whileTap={{ scale: 0.98 }}
         >
             {/* Image Container */}
-            <div className="relative w-full aspect-[4/5] overflow-hidden bg-beige mb-6 rounded-none">
+            <div className="relative w-full aspect-[4/5] overflow-hidden bg-soft mb-5 rounded-2xl shadow-sm group-hover:shadow-lg group-hover:shadow-black/5 transition-all duration-500">
                 <motion.img
                     src={imageUrl}
                     alt={product?.name}
@@ -39,7 +39,7 @@ export default function ProductCard({ product }) {
 
                 {/* Add to Cart Overlay */}
                 <motion.div
-                    className="absolute inset-x-0 bottom-0 p-6 flex justify-center items-end bg-gradient-to-t from-charcoal/40 to-transparent"
+                    className="absolute inset-x-0 bottom-0 p-5 flex justify-center items-end bg-gradient-to-t from-charcoal/30 to-transparent"
                     variants={{
                         idle: { opacity: 0, y: 10 },
                         hover: { opacity: 1, y: 0 }
@@ -47,7 +47,7 @@ export default function ProductCard({ product }) {
                     transition={{ duration: 0.4, ease: "easeOut" }}
                 >
                     <button
-                        className="w-full bg-white/90 backdrop-blur-sm text-charcoal font-medium py-3 px-6 shadow-xl uppercase tracking-widest text-xs hover:bg-black hover:text-white transition-all duration-300 pointer-events-auto"
+                        className="w-full bg-white/95 backdrop-blur-md text-charcoal font-medium py-3.5 px-6 rounded-xl uppercase tracking-widest text-[11px] hover:bg-flame hover:text-white transition-all duration-300 pointer-events-auto shadow-xl"
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
@@ -61,11 +61,11 @@ export default function ProductCard({ product }) {
             </div>
 
             {/* Product Details */}
-            <div className="text-center px-4 w-full">
-                <h3 className="text-lg md:text-xl font-serif text-charcoal mb-2 line-clamp-1 group-hover:text-primary transition-colors duration-300">
+            <div className="text-center px-2 w-full">
+                <h3 className="text-[1.1rem] font-serif text-charcoal mb-1 line-clamp-1 group-hover:text-flame transition-colors duration-300">
                     {product?.name}
                 </h3>
-                <p className="text-sm font-light tracking-wide text-brown">
+                <p className="text-[13px] font-light tracking-wide text-charcoal/60">
                     ${product?.price ? product.price.toFixed(2) : '0.00'}
                 </p>
             </div>

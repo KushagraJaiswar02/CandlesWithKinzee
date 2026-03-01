@@ -14,6 +14,8 @@ module.exports = {
         charcoal: '#2C2C2C',   // text / footer / navbar
         flicker: '#FFD6C0',    // subtle hover / tags
         shadow: '#B0A6A1',     // muted borders / dividers
+        soft: '#F3E9DC',       // soft contrast
+        borderSubtle: 'rgba(0,0,0,0.06)', // borders
       },
       fontFamily: {
         serif: ['"Playfair Display"', 'serif'],

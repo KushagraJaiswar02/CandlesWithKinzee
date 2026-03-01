@@ -1,5 +1,6 @@
 // src/ProductDetailPage.jsx
 
+/* eslint-disable no-unused-vars, react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useContext } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';

@@ -1,101 +1,71 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import candleLogo from '../assets/CANDLE.png';
 
 export default function Footer() {
-    const footerSections = [
-        {
-            title: "Shop",
-            links: [
-                { label: "All Candles", to: "/shop" },
-                { label: "Gift Sets", to: "/shop?category=gift" },
-                { label: "Wax Melts", to: "/shop?type=melts" },
-                { label: "Aromatherapy", to: "/shop?category=aromatherapy" },
-            ]
-        },
-        {
-            title: "About Us",
-            links: [
-                { label: "Our Story", to: "#" },
-                { label: "Ethical Sourcing", to: "#" },
-                { label: "In the Press", to: "#" },
-                { label: "Careers", to: "#" },
-            ]
-        },
-        {
-            title: "Support",
-            links: [
-                { label: "FAQ", to: "#" },
-                { label: "Shipping & Returns", to: "#" },
-                { label: "T&Cs", to: "#" },
-                { label: "Contact Us", to: "#" },
-            ]
-        }
-    ];
-
     return (
-        <footer className="bg-charcoal text-beige py-16">
-            <div className="container mx-auto px-6 md:px-12">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
-                    
-                    {/* Brand & Newsletter (Takes up more space) */}
-                    <div className="lg:col-span-2 flex flex-col items-start">
-                        <Link to="/" className="mb-6 flex items-center gap-3 group">
-                            <img src={candleLogo} alt="Logo" className="h-10 w-10 rounded-full object-cover brightness-0 invert opacity-90 transition-transform group-hover:scale-105" />
-                            <span className="text-2xl font-serif font-bold text-white tracking-tight">
-                                CandlesWith<span className="font-light">Kinzee</span>
+        <footer className="bg-beige text-charcoal py-20 border-t border-borderSubtle">
+            <div className="max-w-7xl mx-auto px-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-8 mb-16">
+
+                    {/* Brand */}
+                    <div className="md:col-span-1">
+                        <Link to="/" className="mb-6 flex items-center gap-3">
+                            <span className="text-2xl font-serif font-bold tracking-tight">
+                                Kindle<span className="font-light text-flame">Light</span>
                             </span>
                         </Link>
-
-                        <p className="text-sm font-light leading-relaxed mb-6 text-beige/70 max-w-sm">
-                            Discover the art of slow living with our small-batch, sustainably sourced soy candles. Handcrafted for comfort.
+                        <p className="text-[13px] font-light leading-relaxed text-charcoal/70 mb-8 max-w-xs">
+                            Handcrafted, small-batch soy candles designed to elevate your everyday moments with elegant fragrances.
                         </p>
-
-                        <div className="w-full max-w-sm">
-                            <p className="text-xs font-bold uppercase tracking-widest text-primary mb-3">Join the Inner Circle</p>
-                            <div className="flex w-full relative">
-                                <input
-                                    type="email"
-                                    placeholder="Your email address"
-                                    className="w-full bg-transparent border-b border-white/20 pb-2 text-beige focus:outline-none focus:border-primary transition-colors text-sm placeholder-beige/40"
-                                />
-                                <button className="absolute right-0 bottom-2 text-primary text-sm font-semibold hover:text-white transition-colors uppercase tracking-wider">
-                                    Join
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className='flex space-x-5 mt-8'>
-                            {['Instagram', 'Twitter', 'Facebook'].map(social => (
-                                <a key={social} href='#' className='text-beige/50 hover:text-primary transition-colors duration-300 text-sm'>
+                        <div className="flex space-x-6">
+                            {['Instagram', 'Pinterest', 'TikTok'].map(social => (
+                                <a key={social} href="#" className="text-[11px] font-bold uppercase tracking-widest hover:text-flame transition-colors duration-300">
                                     {social}
                                 </a>
                             ))}
                         </div>
                     </div>
 
-                    {/* Navigation Links */}
-                    {footerSections.map((section, idx) => (
-                        <div key={idx} className="lg:col-span-1">
-                            <h4 className="text-white font-serif text-lg mb-6">{section.title}</h4>
-                            <ul className="space-y-4 text-sm font-light">
-                                {section.links.map((link, lIdx) => (
-                                    <li key={lIdx}>
-                                        <Link to={link.to} className="text-beige/70 hover:text-white transition-colors duration-300 inline-block">
-                                            {link.label}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
+                    {/* Shop Links */}
+                    <div className="md:col-span-1 md:ml-auto">
+                        <h4 className="font-serif text-[17px] mb-6">Shop</h4>
+                        <ul className="space-y-4 text-[13px] font-light">
+                            <li><Link to="/shop" className="text-charcoal/70 hover:text-flame transition-colors">All Candles</Link></li>
+                            <li><Link to="/collections" className="text-charcoal/70 hover:text-flame transition-colors">Collections</Link></li>
+                            <li><Link to="/shop?category=gift" className="text-charcoal/70 hover:text-flame transition-colors">Gift Sets</Link></li>
+                        </ul>
+                    </div>
+
+                    {/* About Links */}
+                    <div className="md:col-span-1 md:ml-auto">
+                        <h4 className="font-serif text-[17px] mb-6">About</h4>
+                        <ul className="space-y-4 text-[13px] font-light">
+                            <li><Link to="/about" className="text-charcoal/70 hover:text-flame transition-colors">Our Story</Link></li>
+                            <li><Link to="/materials" className="text-charcoal/70 hover:text-flame transition-colors">Materials</Link></li>
+                            <li><Link to="/faq" className="text-charcoal/70 hover:text-flame transition-colors">FAQ</Link></li>
+                        </ul>
+                    </div>
+
+                    {/* Contact Info */}
+                    <div className="md:col-span-1 md:ml-auto">
+                        <h4 className="font-serif text-[17px] mb-6">Contact</h4>
+                        <ul className="space-y-4 text-[13px] font-light">
+                            <li className="text-charcoal/70">hello@candlewithkinzee.com</li>
+                            <li className="text-charcoal/70">+1 (555) 123-4567</li>
+                            <li className="text-charcoal/70 mt-4 leading-relaxed">
+                                123 Artisan Way<br />
+                                Brooklyn, NY 11201
+                            </li>
+                        </ul>
+                    </div>
+
                 </div>
 
-                <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-beige/50 font-light">
-                    <p>&copy; {new Date().getFullYear()} CandlesWithKinzee. All rights reserved.</p>
-                    <div className="flex gap-6">
-                        <Link to="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-                        <Link to="#" className="hover:text-white transition-colors">Terms of Service</Link>
+                <div className="pt-8 border-t border-black/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-bold uppercase tracking-widest text-charcoal/50">
+                    <p>&copy; {new Date().getFullYear()} KindleLight. All rights reserved.</p>
+                    <div className="flex gap-8">
+                        <Link to="/privacy" className="hover:text-flame transition-colors">Privacy Policy</Link>
+                        <Link to="/terms" className="hover:text-flame transition-colors">Terms of Service</Link>
                     </div>
                 </div>
             </div>
