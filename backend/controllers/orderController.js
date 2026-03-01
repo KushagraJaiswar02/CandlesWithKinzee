@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Product = require('../models/ProductModel'); // Import Product Model
 const Order = require('../models/OrderModel'); // Import Order Model
 const Razorpay = require('razorpay');
@@ -54,7 +55,9 @@ const addOrderItems = async (req, res) => {
         // Optimistic Check (Double Check)
         for (const item of orderItems) {
             console.log(`Checking Stock for: ${item.name}, ID: ${item.product}`);
-            const product = await Product.findById(item.product);
+            // Explicitly cast to ObjectId — breaks CodeQL taint chain
+            const safeProductId = new mongoose.Types.ObjectId(String(item.product));
+            const product = await Product.findById(safeProductId);
             if (!product) {
                 res.status(404);
                 throw new Error(`Product not found: ${item.name}`);
@@ -166,7 +169,9 @@ const verifyPayment = async (req, res) => {
         .digest('hex');
 
     if (expectedSignature === razorpay_signature) {
-        const order = await Order.findById(order_id);
+        // Explicitly cast to ObjectId — breaks CodeQL taint chain
+        const safeOrderId = new mongoose.Types.ObjectId(String(order_id));
+        const order = await Order.findById(safeOrderId);
 
         if (order) {
             console.log(`[DEBUG] Verify Payment - ID: ${order._id}, isPaid: ${order.isPaid}, razorpayOrderId: ${order.razorpayOrderId}`);

@@ -7,7 +7,9 @@ const generateToken = require('../utils/generateToken');
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
-    const userExists = await User.findOne({ email });
+    // Explicitly cast to string — breaks CodeQL taint chain (Zod already validates)
+    const safeEmail = String(email).toLowerCase();
+    const userExists = await User.findOne({ email: safeEmail });
 
     if (userExists) {
         res.status(400).json({ message: 'User already exists' });
@@ -42,7 +44,9 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    // Explicitly cast to string — breaks CodeQL taint chain (Zod already validates)
+    const safeEmail = String(email).toLowerCase();
+    const user = await User.findOne({ email: safeEmail });
 
     if (user && (await user.matchPassword(password))) {
         res.json({
