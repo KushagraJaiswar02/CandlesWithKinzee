@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import API_BASE_URL from '../config/api';
 
 const AuthContext = createContext();
@@ -7,14 +7,41 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        // Check for token in localStorage on mount
-        const storedUser = localStorage.getItem('userInfo');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-        setLoading(false);
+    const logout = useCallback(() => {
+        localStorage.removeItem('userInfo');
+        setUser(null);
     }, []);
+
+    useEffect(() => {
+        const checkTokenExpiry = () => {
+            const storedUser = localStorage.getItem('userInfo');
+            if (storedUser) {
+                try {
+                    const parsedUser = JSON.parse(storedUser);
+                    if (parsedUser.token) {
+                        const decodedToken = JSON.parse(atob(parsedUser.token.split('.')[1]));
+                        if (decodedToken.exp * 1000 < Date.now()) {
+                            logout();
+                        } else {
+                            setUser(parsedUser);
+                        }
+                    } else {
+                        setUser(parsedUser);
+                    }
+                } catch (error) {
+                    console.error("Token verification failed:", error);
+                    logout();
+                }
+            } else {
+                setUser(null);
+            }
+            setLoading(false);
+        };
+
+        checkTokenExpiry();
+        const interval = setInterval(checkTokenExpiry, 60000); // Check every minute
+        return () => clearInterval(interval);
+    }, [logout]);
 
     const login = async (email, password) => {
         try {
@@ -68,10 +95,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
-        localStorage.removeItem('userInfo');
-        setUser(null);
-    };
+
 
     const updateUser = (userData) => {
         localStorage.setItem('userInfo', JSON.stringify(userData));

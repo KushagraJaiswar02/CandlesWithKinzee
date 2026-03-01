@@ -28,6 +28,7 @@ const Header = () => {
     const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>;
     const ShoppingCartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>;
     const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>;
+    const LogoutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>;
 
     const navLinks = [
         { path: '/', label: 'Home' },
@@ -87,6 +88,11 @@ const Header = () => {
                     <Link to={user ? "/profile" : "/login"} className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Profile">
                         <UserIcon />
                     </Link>
+                    {user && (
+                        <button onClick={() => { logout(); navigate('/'); }} className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Logout">
+                            <LogoutIcon />
+                        </button>
+                    )}
                 </div>
 
                 {/* Mobile Menu Toggle */}
@@ -128,6 +134,11 @@ const Header = () => {
                         <Link to={user ? "/profile" : "/login"} className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
                             <UserIcon /> {user ? 'My Profile' : 'Sign In'}
                         </Link>
+                        {user && (
+                            <button onClick={() => { logout(); setIsOpen(false); navigate('/'); }} className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3 text-left">
+                                <LogoutIcon /> Logout
+                            </button>
+                        )}
                     </motion.div>
                 )}
             </AnimatePresence>
