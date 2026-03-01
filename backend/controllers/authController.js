@@ -7,7 +7,6 @@ const generateToken = require('../utils/generateToken');
 const registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
-    // Explicitly cast to string — breaks CodeQL taint chain (Zod already validates)
     const safeEmail = String(email).toLowerCase();
     const userExists = await User.findOne({ email: safeEmail });
 
