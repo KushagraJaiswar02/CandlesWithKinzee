@@ -57,6 +57,12 @@ app.use(cors(corsOptions));
 // Explicitly handle preflight OPTIONS requests for all routes
 app.options('/*path', cors(corsOptions));
 
+// ── Rate Limiting ─────────────────────────────────────────────────────────────
+// Global fallback limiter — ensures CodeQL taint analysis sees ALL routes
+// as rate-limited. Individual route limiters provide stricter per-route control.
+const { apiLimiter } = require('./middlewares/rateLimiter');
+app.use('/api', apiLimiter);
+
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
