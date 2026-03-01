@@ -4,11 +4,12 @@ const { registerUser, loginUser, getUserProfile, updateUserProfile } = require('
 const { protect } = require('../middlewares/authMiddleware');
 const validate = require('../middlewares/validate');
 const { registerSchema, loginSchema, updateProfileSchema } = require('../validators/authValidator');
+const { authLimiter, apiLimiter } = require('../middlewares/rateLimiter');
 
-router.post('/register', validate(registerSchema), registerUser);
-router.post('/login', validate(loginSchema), loginUser);
+router.post('/register', authLimiter, validate(registerSchema), registerUser);
+router.post('/login', authLimiter, validate(loginSchema), loginUser);
 router.route('/profile')
-    .get(protect, getUserProfile)
-    .put(protect, validate(updateProfileSchema), updateUserProfile);
+    .get(protect, apiLimiter, getUserProfile)
+    .put(protect, apiLimiter, validate(updateProfileSchema), updateUserProfile);
 
 module.exports = router;
