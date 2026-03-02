@@ -39,7 +39,7 @@ const HomePage = () => {
         fetch(`${API_BASE_URL}/api/landing-config`)
             .then(r => r.ok ? r.json() : null)
             .then(data => { if (data) setLandingConfig(data); })
-            .catch(() => {});
+            .catch((error) => console.error('Failed to fetch landing config:', error));
     }, []);
 
     return (
