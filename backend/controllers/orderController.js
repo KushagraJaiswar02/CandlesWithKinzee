@@ -54,7 +54,7 @@ const addOrderItems = async (req, res) => {
 
         // Optimistic Check (Double Check)
         for (const item of orderItems) {
-            console.log(`Checking Stock for: ${item.name}, ID: ${item.product}`);
+
             // Explicitly cast to ObjectId — breaks CodeQL taint chain
             const safeProductId = new mongoose.Types.ObjectId(String(item.product));
             const product = await Product.findById(safeProductId);
@@ -158,7 +158,7 @@ const createRazorpayOrder = async (req, res) => {
 // @route   POST /api/orders/pay/verify
 // @access  Private
 const verifyPayment = async (req, res) => {
-    console.log('[DEBUG] Hit verifyPayment Endpoint');
+
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, order_id } = req.body;
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -174,7 +174,7 @@ const verifyPayment = async (req, res) => {
         const order = await Order.findById(safeOrderId);
 
         if (order) {
-            console.log(`[DEBUG] Verify Payment - ID: ${order._id}, isPaid: ${order.isPaid}, razorpayOrderId: ${order.razorpayOrderId}`);
+
             // 1. IDEMPOTENCY CHECK
             if (order.isPaid) {
                 return res.json({ message: 'Order already paid', order }); // Positive acknowledgment for duplicates

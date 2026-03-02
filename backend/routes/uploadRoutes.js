@@ -5,13 +5,14 @@ const router = express.Router();
 
 const { storage } = require('../config/cloudinary');
 const { apiLimiter } = require('../middlewares/rateLimiter');
+const { protect } = require('../middlewares/authMiddleware');
 
 const upload = multer({ storage });
 
 // POST /api/upload
 // FIX: res.json() sets Content-Type: application/json — prevents reflected XSS
 // that res.send(string) causes by defaulting to text/html
-router.post('/', apiLimiter, upload.single('image'), (req, res) => {
+router.post('/', apiLimiter, protect, upload.single('image'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }

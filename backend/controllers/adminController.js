@@ -11,9 +11,12 @@ const getAdminStats = async (req, res) => {
     const totalProducts = await Product.countDocuments();
     const lowStockProducts = await Product.countDocuments({ countInStock: { $lt: 5 } });
 
-    // Only calculate revenue for PAID orders
-    const paidOrders = await Order.find({ isPaid: true });
-    const totalRevenue = paidOrders.reduce((acc, order) => acc + (order.totalPrice || 0), 0);
+    // Use aggregation for revenue — avoids fetching all orders into memory (N+1 fix)
+    const [revenueResult] = await Order.aggregate([
+        { $match: { isPaid: true } },
+        { $group: { _id: null, total: { $sum: '$totalPrice' } } }
+    ]);
+    const totalRevenue = revenueResult?.total || 0;
 
     res.json({
         totalOrders,

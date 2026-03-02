@@ -15,6 +15,7 @@ import RegisterPage from './pages/RegistrationPage';
 import ProfilePage from './pages/AccountPage';
 import CheckoutPage from './pages/CheckOutpage';
 import NotFound from './pages/NotFound';
+import EditProductPage from './pages/EditProductPage';
 
 // Admin Page Imports
 import DashboardOverview from './pages/admin/DashboardOverview';
@@ -22,6 +23,7 @@ import AnalyticsView from './pages/admin/AnalyticsView';
 import OrdersManager from './pages/admin/OrdersManager';
 import ProductsManager from './pages/admin/ProductsManager';
 import LandingPageManager from './pages/admin/LandingPageManager';
+import ComingSoon from './pages/admin/ComingSoon';
 
 // Providers & Protections
 import AdminRoute from './components/AdminRoute';
@@ -61,14 +63,17 @@ function App() {
                 <Route path="orders" element={<OrdersManager />} />
                 <Route path="products" element={<ProductsManager />} />
 
-                {/* Additional Placeholder Routes */}
-                <Route path="collections" element={<div className="text-white p-4">Collections (WIP)</div>} />
-                <Route path="inventory" element={<div className="text-white p-4">Inventory (WIP)</div>} />
-                <Route path="customers" element={<div className="text-white p-4">Customers (WIP)</div>} />
-                <Route path="promotions" element={<div className="text-white p-4">Promotions (WIP)</div>} />
+                {/* Unimplemented sidebar stubs */}
+                <Route path="collections" element={<ComingSoon title="Collections" />} />
+                <Route path="inventory" element={<ComingSoon title="Inventory" />} />
+                <Route path="customers" element={<ComingSoon title="Customers" />} />
+                <Route path="promotions" element={<ComingSoon title="Promotions" />} />
                 <Route path="landing-page" element={<LandingPageManager />} />
-                <Route path="settings" element={<div className="text-white p-4">Settings (WIP)</div>} />
+                <Route path="settings" element={<ComingSoon title="Settings" />} />
               </Route>
+
+              {/* Edit / Create Product — full page, outside admin shell */}
+              <Route path="/admin/product/:id/edit" element={<AdminRoute><EditProductPage /></AdminRoute>} />
 
             </Routes>
           </CartProvider>

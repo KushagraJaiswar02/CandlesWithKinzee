@@ -13,6 +13,7 @@ import CTASection from '../components/landing/CTASection.jsx';
 
 const HomePage = () => {
     const [featuredProducts, setFeaturedProducts] = useState([]);
+    const [landingConfig, setLandingConfig] = useState(null);
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -34,6 +35,13 @@ const HomePage = () => {
         fetchProducts();
     }, []);
 
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/api/landing-config`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data) setLandingConfig(data); })
+            .catch(() => {});
+    }, []);
+
     return (
         <motion.div
             className="bg-beige min-h-screen text-charcoal font-sans"
@@ -43,7 +51,10 @@ const HomePage = () => {
         >
             <SEO title="Candlewithkinzee | Premium Handcrafted Candles" description="Discover premium, small-batch soy candles designed to elevate your everyday moments." />
 
-            <Hero />
+            <Hero
+                heroTitle={landingConfig?.heroTitle}
+                heroSubtitle={landingConfig?.heroSubtitle}
+            />
             <FeaturedProducts products={featuredProducts} />
             <BrandValues />
             <PopularCollection />

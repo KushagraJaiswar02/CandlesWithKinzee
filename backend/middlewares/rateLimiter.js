@@ -30,8 +30,8 @@ const apiLimiter = rateLimit({
  * 20 order actions per IP per 15 minutes.
  */
 const orderLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 20,
+    windowMs: 60*1000,
+    max: 100,
     message: { message: 'Too many order requests, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,

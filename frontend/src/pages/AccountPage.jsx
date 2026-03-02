@@ -73,18 +73,32 @@ const ProfilePage = () => {
     const handleUpdateProfile = async (e) => {
         e.preventDefault();
         try {
+            // Strip empty strings — don't send fields the user left blank
+            const payload = Object.fromEntries(
+                Object.entries(profileForm).filter(([_, v]) => v !== '')
+            );
+
             const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
-                body: JSON.stringify(profileForm)
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
             if (res.ok) {
                 addToast('Profile Updated', 'success');
-                setProfile(data); // Immediate update
-                updateUser(data); // Update global user state for Header
+                setProfile(data);
+                updateUser(data);
                 setEditingProfile(false);
-            } else { addToast(data.message, 'error'); }
+            } else {
+                // Show field-specific errors if available, otherwise generic message
+                if (data.errors && data.errors.length > 0) {
+                    data.errors.forEach(err => {
+                        addToast(`${err.field ? err.field + ': ' : ''}${err.message}`, 'error');
+                    });
+                } else {
+                    addToast(data.message || 'Update failed', 'error');
+                }
+            }
         } catch (error) { addToast(error.message, 'error'); }
     };
 

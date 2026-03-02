@@ -12,7 +12,7 @@ const slideImages = [
     customSlideImage
 ];
 
-const Hero = () => {
+const Hero = ({ heroTitle, heroSubtitle }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const paginate = (newDirection) => {
@@ -39,10 +39,10 @@ const Hero = () => {
                     className="max-w-xl"
                 >
                     <h1 className="text-5xl md:text-6xl lg:text-[4.5rem] font-serif text-charcoal leading-[1.1] mb-6">
-                        Handcrafted Candles That Transform Your Space.
+                        {heroTitle || 'Handcrafted Candles That Transform Your Space.'}
                     </h1>
                     <p className="text-charcoal/70 text-lg md:text-xl font-light mb-10 leading-relaxed max-w-lg">
-                        Discover premium, small-batch soy candles designed to elevate your everyday moments with long-lasting, elegant fragrances.
+                        {heroSubtitle || 'Discover premium, small-batch soy candles designed to elevate your everyday moments with long-lasting, elegant fragrances.'}
                     </p>
                     <div className="flex flex-wrap items-center gap-6">
                         <Link to="/shop">

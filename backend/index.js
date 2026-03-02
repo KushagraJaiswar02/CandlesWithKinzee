@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
 });
 
 // Middleware
-app.use(express.json()); // Body parser
+app.use(express.json({ limit: '10kb' })); // Body parser + payload size guard
 
 
 
@@ -87,6 +87,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
 const uploadRoutes = require('./routes/uploadRoutes');
+const landingRoutes = require('./routes/landingRoutes');
 const path = require('path');
 
 app.use('/api/auth', authRoutes);
@@ -94,6 +95,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/landing-config', landingRoutes);
 
 const uploadsPath = path.join(__dirname, '/uploads');
 app.use('/uploads', express.static(uploadsPath));
@@ -116,9 +118,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-app.get('/', (req, res) => {
-    res.send('API is running...');
-});
+
+
 
 const PORT = process.env.PORT || 5001;
 
