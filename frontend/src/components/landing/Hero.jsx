@@ -23,7 +23,7 @@ const Hero = () => {
     useEffect(() => {
         const timer = setInterval(() => {
             paginate(1);
-        }, 3500); // 3.5 second timer
+        }, 2500); // .5 second timer
         return () => clearInterval(timer);
     }, [currentIndex]);
 
@@ -164,40 +164,7 @@ const Hero = () => {
                             title="Swipe to navigate"
                         />
 
-                        {/* Navigation Arrows */}
-                        <div className="absolute -inset-x-6 lg:-inset-x-12 top-1/2 -translate-y-1/2 flex justify-between items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-40 pointer-events-none">
-                            <button
-                                onClick={(e) => { e.stopPropagation(); paginate(-1); }}
-                                className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-charcoal hover:bg-white hover:text-flame transition-colors shadow-xl pointer-events-auto"
-                                aria-label="Previous slide"
-                            >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
-                            </button>
-                            <button
-                                onClick={(e) => { e.stopPropagation(); paginate(1); }}
-                                className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center text-charcoal hover:bg-white hover:text-flame transition-colors shadow-xl pointer-events-auto"
-                                aria-label="Next slide"
-                            >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
-                            </button>
-                        </div>
 
-                        {/* Pagination Dots */}
-                        <div className="absolute -bottom-10 left-0 right-0 flex justify-center gap-2 z-40 relative pointer-events-none">
-                            <div className="flex gap-2 pointer-events-auto">
-                                {slideImages.map((_, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setCurrentIndex(idx);
-                                        }}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${currentIndex === idx ? 'bg-charcoal w-6' : 'bg-charcoal/30 hover:bg-charcoal/60 w-1.5'}`}
-                                        aria-label={`Jump to slide ${idx + 1}`}
-                                    />
-                                ))}
-                            </div>
-                        </div>
 
                     </div>
                 </motion.div>

@@ -85,13 +85,25 @@ const Header = () => {
                             </span>
                         )}
                     </Link>
-                    <Link to={user ? "/profile" : "/login"} className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Profile">
-                        <UserIcon />
-                    </Link>
-                    {user && (
-                        <button onClick={() => { logout(); navigate('/'); }} className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Logout">
-                            <LogoutIcon />
-                        </button>
+                    {user ? (
+                        <>
+                            {user.isAdmin ? (
+                                <Link to="/admin" className="hover:text-flame transition-colors font-medium text-[12px] tracking-widest uppercase flex items-center gap-1.5" title="Admin Panel">
+                                    <UserIcon /> Admin
+                                </Link>
+                            ) : (
+                                <Link to="/profile" className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Profile">
+                                    <UserIcon />
+                                </Link>
+                            )}
+                            <button onClick={() => { logout(); navigate('/'); }} className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Logout">
+                                <LogoutIcon />
+                            </button>
+                        </>
+                    ) : (
+                        <Link to="/login" className="bg-charcoal text-white hover:bg-flame transition-colors px-5 py-2 rounded-full text-[11px] font-medium tracking-widest uppercase whitespace-nowrap">
+                            Login / Signup
+                        </Link>
                     )}
                 </div>
 
@@ -131,13 +143,25 @@ const Header = () => {
                             </Link>
                         ))}
                         <hr className="border-black/5" />
-                        <Link to={user ? "/profile" : "/login"} className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
-                            <UserIcon /> {user ? 'My Profile' : 'Sign In'}
-                        </Link>
-                        {user && (
-                            <button onClick={() => { logout(); setIsOpen(false); navigate('/'); }} className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3 text-left">
-                                <LogoutIcon /> Logout
-                            </button>
+                        {user ? (
+                            <>
+                                {user.isAdmin ? (
+                                    <Link to="/admin" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
+                                        <UserIcon /> Admin Panel
+                                    </Link>
+                                ) : (
+                                    <Link to="/profile" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
+                                        <UserIcon /> My Profile
+                                    </Link>
+                                )}
+                                <button onClick={() => { logout(); setIsOpen(false); navigate('/'); }} className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3 text-left">
+                                    <LogoutIcon /> Logout
+                                </button>
+                            </>
+                        ) : (
+                            <Link to="/login" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
+                                <UserIcon /> Login / Signup
+                            </Link>
                         )}
                     </motion.div>
                 )}
