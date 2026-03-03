@@ -197,6 +197,7 @@ const EditProductPage = () => {
                                                 setUpdating(true);
                                                 const res = await fetch(`${API_BASE_URL}/api/upload`, {
                                                     method: 'POST',
+                                                    headers: { Authorization: `Bearer ${user.token}` },
                                                     body: formData,
                                                 });
                                                 if (!res.ok) throw new Error('Upload Failed');

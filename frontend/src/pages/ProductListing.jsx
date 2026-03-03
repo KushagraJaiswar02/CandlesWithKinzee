@@ -1,4 +1,4 @@
-// src/ProductListingPage.jsx
+// src/pages/ProductListing.jsx
 
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
@@ -7,190 +7,257 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '../components/ProductCard.jsx';
 import SEO from '../components/SEO.jsx';
 import API_BASE_URL from '../config/api';
+import { SlidersHorizontal, LayoutGrid, List, ChevronDown, X } from 'lucide-react';
 
 const ProductListingPage = () => {
-    // Dummy Data for Product Display
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
+    const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+    const [sortOption, setSortOption] = useState('Popular');
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/products`);
-                if (!res.ok) {
-                    if (res.status === 404) {
-                        console.error(`Status 404: Endpoint not found. Check if '${API_BASE_URL}/api/products' is correct.`);
-                    }
-                    throw new Error(`API Error: ${res.status} ${res.statusText}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setProducts(data);
                 }
-                // Check content-type to ensure we got JSON
-                const contentType = res.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new TypeError("Received non-JSON response from API");
-                }
-
-                const data = await res.json();
-                setProducts(data);
-                setLoading(false);
             } catch (error) {
                 console.error("Failed to fetch products:", error.message);
+            } finally {
                 setLoading(false);
             }
         };
         fetchProducts();
     }, []);
 
-    const [filterOpen, setFilterOpen] = useState(false);
-
-    // Placeholder Icons for Filter and Close
-    const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>;
-    const XIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>;
-
-
-    return (
-        <div className="bg-white min-h-screen">
-            <SEO
-                title="Shop All Candles"
-                description="Browse our wide selection of candles including aromatherapy, soy wax, pillar, and more."
-                keywords="buy candles, shop candles, candle store, online candle shop"
-            />
-
-            {/* 1. Collection Hero (Slightly shorter padding) */}
-            <div className="bg-beige pt-32 pb-12 md:pt-40 md:pb-16 px-4 text-center">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Hand-Poured in small batches</p>
-                    <h1 className="text-4xl md:text-5xl font-serif font-medium text-charcoal mb-4">The Collection</h1>
-                    <p className="text-brown/70 max-w-lg mx-auto font-light">
-                        Discover scents designed to elevate your sanctuary. 100% soy wax, clean burning, and sustainably crafted.
-                    </p>
-                </motion.div>
+    // Helper to render the sidebar filters
+    const renderFilters = () => (
+        <div className="space-y-8">
+            <div className="flex items-center justify-between md:hidden mb-6 cursor-pointer" onClick={() => setMobileFilterOpen(false)}>
+                <h2 className="text-lg font-serif text-gray-900">Filters</h2>
+                <button className="p-2 text-gray-400 hover:text-gray-900">
+                    <X size={20} />
+                </button>
             </div>
 
-            <div className="container mx-auto px-4 py-8 md:py-12">
+            {/* Category */}
+            <div>
+                <h3 className="text-[13px] font-semibold text-gray-900 mb-4 tracking-wide uppercase">Category</h3>
+                <ul className="space-y-3">
+                    {['Shop All', 'Signature Candles', 'Aromatherapy', 'Festive Collection'].map((cat, i) => (
+                        <li key={cat}>
+                            <button className={`text-[14px] transition-colors ${i === 0 ? 'font-medium text-gray-900' : 'text-gray-500 hover:text-gray-900'}`}>
+                                {cat}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
-                {/* 2. Top Toolbar: Toggle Filter & Sort (Desktop) */}
-                <div className="flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b border-neutral-100 sticky top-20 bg-white/95 backdrop-blur z-20 md:static md:bg-transparent md:z-auto">
+            {/* Fragrance Type */}
+            <div>
+                <h3 className="text-[13px] font-semibold text-gray-900 mb-4 tracking-wide uppercase">Fragrance Notes</h3>
+                <div className="flex flex-col gap-3">
+                    {['Woody & Earthy', 'Floral', 'Fresh & Citrus', 'Spiced'].map(note => (
+                        <label key={note} className="flex items-center gap-3 cursor-pointer group">
+                            <div className="w-4 h-4 rounded border border-gray-300 flex items-center justify-center group-hover:border-gray-400 transition-colors">
+                            </div>
+                            <span className="text-[14px] text-gray-600 group-hover:text-gray-900">{note}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
 
-                    <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
-                        {/* Filter Toggle Button */}
-                        <button
-                            onClick={() => setFilterOpen(!filterOpen)}
-                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-charcoal hover:text-primary transition-colors"
-                        >
-                            <span className="text-lg font-light">{filterOpen ? '−' : '+'}</span>
-                            {filterOpen ? 'Hide Filters' : 'Show Filters'}
-                        </button>
+            {/* Price */}
+            <div>
+                <h3 className="text-[13px] font-semibold text-gray-900 mb-4 tracking-wide uppercase">Price</h3>
+                <div className="flex flex-col gap-3">
+                    {['Under ₹499', '₹500 - ₹999', '₹1000+'].map((price) => (
+                        <label key={price} className="flex items-center gap-3 cursor-pointer group">
+                            <div className="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center group-hover:border-gray-400 transition-colors">
+                            </div>
+                            <span className="text-[14px] text-gray-600 group-hover:text-gray-900">{price}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
 
-                        <span className="hidden md:inline-block w-px h-4 bg-neutral-300"></span>
-                        <span className="text-xs text-brown/60 uppercase tracking-wide hidden md:inline-block">{products.length} Products</span>
+            {/* Availability */}
+            <div className="pt-6 border-t border-gray-100">
+                <label className="flex items-center justify-between cursor-pointer group">
+                    <span className="text-[14px] text-gray-900 font-medium tracking-wide">In Stock Only</span>
+                    <div className="w-9 h-5 bg-gray-200 rounded-full relative transition-colors duration-200 group-hover:bg-gray-300">
+                        <div className="w-4 h-4 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-200 shadow-sm"></div>
                     </div>
+                </label>
+            </div>
+        </div>
+    );
 
-                    {/* Sort Dropdown */}
-                    <div className="flex items-center gap-3 mt-4 md:mt-0 w-full md:w-auto justify-end">
-                        <span className="text-xs text-brown/60 uppercase tracking-widest">Sort by</span>
-                        <select className="text-sm bg-transparent border-none focus:ring-0 text-charcoal font-medium cursor-pointer p-0 pr-6 hover:text-primary transition-colors">
-                            <option>Best Selling</option>
-                            <option>Newest</option>
+    return (
+        <div className="bg-white min-h-screen pb-20">
+            <SEO
+                title="Shop Handcrafted Candles"
+                description="Discover our premium handcrafted candle collection. Clean burning soy wax with sophisticated scent profiles."
+            />
+
+
+            {/* 2. Main Content Area */}
+            <div className="container mx-auto px-4 md:px-8 lg:px-12 max-w-[1400px] pt-28 md:pt-32">
+
+                {/* Mobile Controls (Filters + Sort) */}
+                <div className="flex md:hidden items-center justify-between mb-8 pb-4 border-b border-gray-100">
+                    <button
+                        onClick={() => setMobileFilterOpen(true)}
+                        className="flex items-center gap-2 text-[14px] font-medium text-gray-900"
+                    >
+                        <SlidersHorizontal size={18} /> Filters
+                    </button>
+
+                    <div className="relative">
+                        <select
+                            className="appearance-none bg-transparent border-none text-[14px] font-medium text-gray-900 pr-6 focus:ring-0 cursor-pointer"
+                            value={sortOption}
+                            onChange={(e) => setSortOption(e.target.value)}
+                        >
+                            <option>Popular</option>
                             <option>Price: Low to High</option>
                             <option>Price: High to Low</option>
+                            <option>Newest</option>
                         </select>
+                        <ChevronDown size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                     </div>
                 </div>
 
+                <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-start">
 
-                <div className="flex gap-12 items-start relative">
+                    {/* 3. Desktop Sidebar Filters (240px fixed) */}
+                    {showFilters && (
+                        <aside className="hidden md:block w-[240px] shrink-0 sticky top-28 pr-4">
+                            {renderFilters()}
+                        </aside>
+                    )}
 
-                    {/* 3. Toggleable Sidebar */}
+                    {/* Mobile Slide-over Filters */}
                     <AnimatePresence>
-                        {filterOpen && (
-                            <motion.aside
-                                initial={{ width: 0, opacity: 0, paddingRight: 0 }}
-                                animate={{ width: 250, opacity: 1, paddingRight: 24 }}
-                                exit={{ width: 0, opacity: 0, paddingRight: 0 }}
-                                className="hidden md:block overflow-hidden shrink-0 sticky top-32"
-                            >
-                                <div className="space-y-10 w-60">
-                                    {/* Categories */}
-                                    <div>
-                                        <h3 className="text-xs font-bold uppercase tracking-widest text-charcoal mb-4 border-b border-black pb-2">Category</h3>
-                                        <ul className="space-y-3">
-                                            {['Shop All', 'Aromatherapy', 'Soy Wax', 'Pillar', 'Votive'].map((item, i) => (
-                                                <li key={item}>
-                                                    <a href="#" className={`text-sm hover:text-primary transition-colors block ${i === 0 ? 'text-charcoal font-bold' : 'text-brown/80'}`}>
-                                                        {item}
-                                                    </a>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-
-                                    {/* Price */}
-                                    <div>
-                                        <h3 className="text-xs font-bold uppercase tracking-widest text-charcoal mb-4 border-b border-black pb-2">Price</h3>
-                                        <div className="space-y-3">
-                                            {['Under $25', '$25 - $50', '$50 +'].map((price) => (
-                                                <label key={price} className="flex items-center gap-3 text-sm text-brown/80 hover:text-charcoal cursor-pointer group">
-                                                    <div className="relative flex items-center">
-                                                        <input type="checkbox" className="peer h-4 w-4 cursor-pointer appearance-none rounded-sm border border-neutral-300 transition-all checked:border-charcoal checked:bg-charcoal" />
-                                                        <svg className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white opacity-0 peer-checked:opacity-100" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                                    </div>
-                                                    <span className="group-hover:translate-x-1 transition-transform">{price}</span>
-                                                </label>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.aside>
+                        {mobileFilterOpen && (
+                            <>
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 bg-gray-900/40 z-[100] md:hidden backdrop-blur-sm"
+                                    onClick={() => setMobileFilterOpen(false)}
+                                />
+                                <motion.div
+                                    initial={{ x: '-100%' }}
+                                    animate={{ x: 0 }}
+                                    exit={{ x: '-100%' }}
+                                    transition={{ type: 'tween', duration: 0.3 }}
+                                    className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white z-[110] p-6 pt-10 overflow-y-auto shadow-2xl md:hidden custom-scrollbar"
+                                >
+                                    {renderFilters()}
+                                </motion.div>
+                            </>
                         )}
                     </AnimatePresence>
 
-                    {/* Mobile Sidebar (Fixed Overlay) - Only if toggled on mobile */}
-                    <div className={`fixed inset-0 z-50 bg-white p-6 transform transition-transform duration-300 md:hidden ${filterOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-                        <div className="flex justify-between items-center mb-8">
-                            <span className="font-serif text-xl">Filters</span>
-                            <button onClick={() => setFilterOpen(false)}><XIcon /></button>
-                        </div>
-                        {/* Mobile Filter Content Repetition ... (Simplified for mobile usually) */}
-                        <div className="space-y-8">
-                            <div>
-                                <h3 className="font-bold mb-4">Category</h3>
-                                <ul className="space-y-2">{['Shop All', 'Aromatherapy', 'Soy Wax'].map(i => <li key={i}>{i}</li>)}</ul>
+                    {/* 4. Product Grid Area */}
+                    <main className="flex-1 w-full min-w-0">
+
+                        {/* Desktop Toolbar (Sort & View Toggle) */}
+                        <div className="hidden md:flex justify-between items-center mb-6 bg-white z-10 sticky top-[72px] py-4 border-b border-gray-100">
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className="flex items-center gap-2 text-[14px] font-medium text-gray-900 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors"
+                                >
+                                    <SlidersHorizontal size={18} />
+                                    {showFilters ? 'Hide Filters' : 'Show Filters'}
+                                </button>
+                                <p className="text-[14px] text-gray-500 font-medium">
+                                    Showing {products.length} products
+                                </p>
+                            </div>
+
+                            <div className="flex items-center gap-6">
+                                {/* View Toggle */}
+                                <div className="flex items-center bg-gray-50 p-1 rounded-lg border border-gray-100">
+                                    <button
+                                        onClick={() => setViewMode('grid')}
+                                        className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        <LayoutGrid size={18} />
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('list')}
+                                        className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                                    >
+                                        <List size={18} />
+                                    </button>
+                                </div>
+
+                                {/* Sort Options */}
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[13px] text-gray-500 uppercase tracking-widest font-medium">Sort by:</span>
+                                    <div className="relative">
+                                        <select
+                                            className="appearance-none bg-transparent border-none text-[14px] font-medium text-gray-900 pr-6 py-1 focus:ring-0 cursor-pointer hover:text-amber-600 transition-colors"
+                                            value={sortOption}
+                                            onChange={(e) => setSortOption(e.target.value)}
+                                        >
+                                            <option>Popular</option>
+                                            <option>Price: Low to High</option>
+                                            <option>Price: High to Low</option>
+                                            <option>Newest</option>
+                                        </select>
+                                        <ChevronDown size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-
-                    {/* 4. Dynamic Product Grid */}
-                    <main className="flex-1 w-full min-w-0">
-                        <motion.div
-                            layout
-                            className={`grid gap-x-6 gap-y-12 md:gap-x-8 md:gap-y-16 ${filterOpen ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-2 md:grid-cols-3'}`}
-                        >
-                            <AnimatePresence>
-                                {products.length > 0 ? products.map(product => (
-                                    <motion.div
-                                        layout
-                                        key={product._id}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                    >
-                                        <Link to={`/product/${product._id}`}>
-                                            <ProductCard product={product} />
-                                        </Link>
-                                    </motion.div>
-                                )) : (
-                                    <div className="col-span-full py-32 text-center">
-                                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-charcoal mb-4"></div>
-                                        <p className="text-brown/50 text-sm">Loading curation...</p>
-                                    </div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
+                        {/* Product Render Loop */}
+                        {loading ? (
+                            <div className="py-32 flex flex-col items-center justify-center">
+                                <div className="w-8 h-8 flex items-center justify-center border-2 border-amber-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                                <p className="text-gray-400 text-[14px] font-medium tracking-wide">Curating collection...</p>
+                            </div>
+                        ) : (
+                            <motion.div
+                                layout
+                                className={
+                                    viewMode === 'grid'
+                                        ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10"
+                                        : "flex flex-col gap-6"
+                                }
+                            >
+                                <AnimatePresence mode="popLayout">
+                                    {products.length > 0 ? products.map((product) => (
+                                        <motion.div
+                                            layout
+                                            key={product._id}
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            <Link to={`/product/${product._id}`} className="block h-full">
+                                                <ProductCard product={product} view={viewMode} />
+                                            </Link>
+                                        </motion.div>
+                                    )) : (
+                                        <div className="col-span-full py-20 text-center">
+                                            <p className="text-gray-500 text-[15px]">No products match the selected criteria.</p>
+                                        </div>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        )}
                     </main>
                 </div>
             </div>

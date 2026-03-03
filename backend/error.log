@@ -1,0 +1,11 @@
+[2026-03-03T07:40:09.927Z] MongoServerSelectionError: getaddrinfo ENOTFOUND ac-2k9rncb-shard-00-00.qg1jhzp.mongodb.net
+    at Topology.selectServer (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\sdam\topology.js:327:38)
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processTimers (node:internal/timers:520:9)
+    at async tryOperation (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\operations\execute_operation.js:148:18)
+    at async executeOperation (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\operations\execute_operation.js:78:16)
+    at async FindCursor._initialize (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\find_cursor.js:62:26)
+    at async FindCursor.cursorInit (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:632:27)
+    at async FindCursor.fetchBatch (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:666:13)
+    at async FindCursor.next (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:342:17)
+    at async [Symbol.asyncIterator] (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:250:34)

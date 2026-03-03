@@ -110,6 +110,7 @@ const ProfilePage = () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/upload`, {
                 method: 'POST',
+                headers: { Authorization: `Bearer ${user.token}` },
                 body: formData,
             });
             const data = await res.json();

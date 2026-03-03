@@ -57,7 +57,7 @@ const LandingPageManager = () => {
                 // Fallback: load from localStorage
                 const stored = localStorage.getItem(STORAGE_KEY);
                 if (stored) {
-                    try { setConfig(JSON.parse(stored)); } catch (_) {}
+                    try { setConfig(JSON.parse(stored)); } catch (_) { }
                 }
                 addToast('Could not load config from server — showing cached version.', 'error');
             } finally {
@@ -102,22 +102,22 @@ const LandingPageManager = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-[50vh]">
-                <RefreshCw size={24} className="text-[#FF9F1C] animate-spin" />
+                <RefreshCw size={24} className="text-flame animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 max-w-5xl">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div className="space-y-8 max-w-5xl">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">Landing Page Configuration</h1>
-                    <p className="text-gray-400 mt-1">Changes are saved to the database and take effect immediately across all devices.</p>
+                    <h1 className="text-[28px] font-semibold text-gray-900 tracking-tight">Landing Page Configuration</h1>
+                    <p className="text-gray-500 text-[14px] mt-1">Changes are saved to the database and take effect immediately across all devices.</p>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-lg transition-all disabled:opacity-50 ${saved ? 'bg-green-500 text-white' : 'bg-[#FF9F1C] hover:bg-[#ffaa33] text-[#111]'}`}
+                    className={`flex items-center gap-2 px-5 py-2.5 font-medium text-[13px] rounded-lg shadow-sm transition-all duration-150 disabled:opacity-50 ${saved ? 'bg-green-600 text-white' : 'bg-gray-900 hover:bg-gray-800 text-white'}`}
                 >
                     {saved ? <CheckCircle2 size={18} /> : saving ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
                     {saved ? 'Saved!' : saving ? 'Saving...' : 'Publish Changes'}
@@ -130,39 +130,39 @@ const LandingPageManager = () => {
                 <div className="lg:col-span-2 space-y-6">
 
                     {/* Hero Section */}
-                    <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                        <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
-                            <LayoutTemplate className="text-[#FF9F1C]" size={20} />
-                            <h2 className="text-xl font-bold text-white">Hero Section</h2>
+                    <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-7">
+                        <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-4">
+                            <LayoutTemplate className="text-amber-500" size={20} />
+                            <h2 className="text-[18px] font-semibold text-gray-900">Hero Section</h2>
                         </div>
 
-                        <div className="space-y-5">
+                        <div className="space-y-6">
                             <div>
-                                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                                <label className="flex items-center gap-2 text-[13px] font-medium text-gray-600 mb-2">
                                     <Type size={14} /> Main Headline
                                 </label>
                                 <input
                                     type="text"
                                     value={config.heroTitle}
                                     onChange={e => set('heroTitle', e.target.value)}
-                                    className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF9F1C] transition-colors"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors duration-150 text-[14px]"
                                 />
                             </div>
 
                             <div>
-                                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                                <label className="flex items-center gap-2 text-[13px] font-medium text-gray-600 mb-2">
                                     <Type size={14} /> Subtitle / Tagline
                                 </label>
                                 <textarea
                                     value={config.heroSubtitle}
                                     onChange={e => set('heroSubtitle', e.target.value)}
                                     rows="3"
-                                    className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF9F1C] transition-colors"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors duration-150 text-[14px]"
                                 />
                             </div>
 
                             <div>
-                                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                                <label className="flex items-center gap-2 text-[13px] font-medium text-gray-600 mb-2">
                                     <ImageIcon size={14} /> Background Image URL
                                 </label>
                                 <input
@@ -170,13 +170,13 @@ const LandingPageManager = () => {
                                     placeholder="https://..."
                                     value={config.heroImage}
                                     onChange={e => set('heroImage', e.target.value)}
-                                    className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF9F1C] transition-colors"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors duration-150 text-[14px]"
                                 />
                                 {config.heroImage && (
                                     <img
                                         src={config.heroImage}
                                         alt="Hero preview"
-                                        className="mt-3 w-full h-32 object-cover rounded-lg border border-white/10 opacity-70"
+                                        className="mt-4 w-full h-32 object-cover rounded-lg border border-gray-200 opacity-90"
                                         onError={e => { e.target.style.display = 'none'; }}
                                     />
                                 )}
@@ -185,36 +185,36 @@ const LandingPageManager = () => {
                     </div>
 
                     {/* Announcement Banner */}
-                    <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                        <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
-                            <CreditCard className="text-[#A78BFA]" size={20} />
-                            <h2 className="text-xl font-bold text-white">Announcement Banner</h2>
+                    <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-7">
+                        <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-4">
+                            <CreditCard className="text-blue-600" size={20} />
+                            <h2 className="text-[18px] font-semibold text-gray-900">Announcement Banner</h2>
                         </div>
 
-                        <div className="space-y-5">
-                            <div className="flex items-center justify-between p-4 bg-[#111] border border-white/5 rounded-lg">
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between p-5 bg-gray-50 border border-gray-200 rounded-lg">
                                 <div>
-                                    <h3 className="text-white font-medium">Enable Top Banner</h3>
-                                    <p className="text-sm text-gray-500 mt-1">Displays a full-width announcement above the navigation.</p>
+                                    <h3 className="text-gray-900 font-medium text-[14px]">Enable Top Banner</h3>
+                                    <p className="text-[13px] text-gray-500 mt-1">Displays a full-width announcement above the navigation.</p>
                                 </div>
                                 <button
                                     onClick={() => set('discountBannerActive', !config.discountBannerActive)}
-                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.discountBannerActive ? 'bg-[#FF9F1C]' : 'bg-gray-600'}`}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-150 ${config.discountBannerActive ? 'bg-amber-500' : 'bg-gray-300'}`}
                                 >
-                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${config.discountBannerActive ? 'translate-x-6' : 'translate-x-1'}`} />
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-150 ${config.discountBannerActive ? 'translate-x-6' : 'translate-x-1'}`} />
                                 </button>
                             </div>
 
-                            <div className={`transition-opacity ${config.discountBannerActive ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Banner Text</label>
+                            <div className={`transition-opacity duration-150 ${config.discountBannerActive ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                                <label className="block text-[13px] font-medium text-gray-600 mb-2">Banner Text</label>
                                 <input
                                     type="text"
                                     value={config.discountBannerText}
                                     onChange={e => set('discountBannerText', e.target.value)}
-                                    className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#A78BFA] transition-colors"
+                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors duration-150 text-[14px]"
                                 />
                                 {config.discountBannerActive && (
-                                    <div className="mt-3 p-3 bg-[#FF9F1C]/10 border border-[#FF9F1C]/20 rounded-lg text-center text-sm text-[#FF9F1C] font-medium">
+                                    <div className="mt-4 p-3 bg-amber-50 border border-amber-100 rounded-lg text-center text-[13px] text-amber-700 font-medium">
                                         Preview: {config.discountBannerText}
                                     </div>
                                 )}
@@ -227,35 +227,35 @@ const LandingPageManager = () => {
                 <div className="space-y-6">
 
                     {/* Festive Mode */}
-                    <div className="bg-[#1A1A1A] border border-[#FF9F1C]/20 rounded-xl p-6 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF9F1C]/10 rounded-bl-full blur-xl" />
+                    <div className="bg-white shadow-sm border border-amber-200 rounded-xl p-7 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-amber-100/50 rounded-bl-full blur-xl" />
                         <div className="flex items-center gap-2 mb-4">
-                            <ToggleRight className="text-[#FF9F1C]" size={20} />
-                            <h2 className="text-lg font-bold text-white">Festive Overlay</h2>
+                            <ToggleRight className="text-amber-500" size={20} />
+                            <h2 className="text-[18px] font-semibold text-gray-900">Festive Overlay</h2>
                         </div>
-                        <p className="text-sm text-gray-400 mb-6">
+                        <p className="text-[13px] text-gray-600 mb-6 relative z-10">
                             Enables holiday-themed styling and premium gold accents across the storefront.
                         </p>
                         <button
                             onClick={() => set('festiveModeActive', !config.festiveModeActive)}
-                            className={`w-full py-3 rounded-lg font-bold transition-all ${config.festiveModeActive ? 'bg-[#FF9F1C] text-[#111] shadow-[0_0_15px_rgba(255,159,28,0.4)]' : 'bg-[#111] text-gray-400 border border-white/10 hover:border-white/20'}`}
+                            className={`w-full py-2.5 rounded-lg font-medium text-[14px] transition-all duration-150 relative z-10 ${config.festiveModeActive ? 'bg-amber-500 text-white shadow-sm' : 'bg-gray-50 text-gray-600 border border-gray-200 hover:border-amber-300 hover:bg-white'}`}
                         >
                             {config.festiveModeActive ? '🎄 FESTIVE MODE: ACTIVE' : 'Enable Festive Mode'}
                         </button>
                     </div>
 
                     {/* Featured Collection */}
-                    <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                        <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
-                            <CalendarDays className="text-blue-400" size={20} />
-                            <h2 className="text-lg font-bold text-white">Storefront Display</h2>
+                    <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-7">
+                        <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-4">
+                            <CalendarDays className="text-blue-600" size={20} />
+                            <h2 className="text-[18px] font-semibold text-gray-900">Storefront Display</h2>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Featured Collection</label>
+                            <label className="block text-[13px] font-medium text-gray-600 mb-2">Featured Collection</label>
                             <select
                                 value={config.featuredCollection}
                                 onChange={e => set('featuredCollection', e.target.value)}
-                                className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition-colors appearance-none"
+                                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-gray-900 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-colors duration-150 appearance-none text-[14px]"
                             >
                                 <option value="Aromatherapy">Aromatherapy</option>
                                 <option value="Best Sellers">Best Sellers</option>
@@ -266,9 +266,9 @@ const LandingPageManager = () => {
                     </div>
 
                     {/* Live DB snapshot */}
-                    <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                        <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-4">Current Config (DB)</h2>
-                        <pre className="text-xs text-gray-500 overflow-auto max-h-48 whitespace-pre-wrap break-all">
+                    <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-7">
+                        <h2 className="text-[11px] font-medium text-gray-400 uppercase tracking-widest mb-4">Current Config (DB)</h2>
+                        <pre className="text-[11px] font-mono text-gray-500 overflow-auto max-h-48 whitespace-pre-wrap break-all p-4 bg-gray-50 rounded-lg border border-gray-100">
                             {JSON.stringify(config, null, 2)}
                         </pre>
                     </div>

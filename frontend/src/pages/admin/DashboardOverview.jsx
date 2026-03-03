@@ -20,20 +20,28 @@ import {
 import AuthContext from '../../context/AuthContext';
 import API_BASE_URL from '../../config/api';
 
-const StatCard = ({ title, value, icon: Icon, isAlert }) => (
-    <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6 relative overflow-hidden group">
-        <div className="flex justify-between items-start mb-4 relative z-10">
-            <div className="p-3 bg-white/5 rounded-lg text-gray-400 group-hover:text-white transition-colors">
-                <Icon size={24} className={isAlert ? 'text-red-400' : ''} />
+const StatCard = ({ title, value, icon: Icon, isAlert, tooltip }) => (
+    <div className="bg-white border border-gray-200 rounded-xl p-7 shadow-sm transition-shadow duration-150 hover:shadow group relative">
+        <div className="flex justify-between items-start mb-4">
+            <div className={`p-3 rounded-lg transition-colors duration-150 ${isAlert ? 'bg-red-50 text-red-600 group-hover:bg-red-100' : 'bg-gray-50 text-gray-500 group-hover:text-gray-900 group-hover:bg-gray-100'}`}>
+                <Icon size={22} />
             </div>
+            {tooltip && (
+                <div className="group/tooltip relative">
+                    <AlertCircle size={16} className="text-gray-400 cursor-help" />
+                    <div className="absolute right-0 w-48 p-2 mt-2 text-[12px] bg-gray-900 text-white rounded-md opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-150 z-20">
+                        {tooltip}
+                        <div className="absolute -top-1 right-2 w-2 h-2 bg-gray-900 transform rotate-45"></div>
+                    </div>
+                </div>
+            )}
         </div>
-        <div className="relative z-10">
-            <h3 className="text-gray-400 text-sm font-medium mb-1">{title}</h3>
-            <div className={`text-3xl font-bold ${isAlert ? 'text-red-400' : 'text-white'}`}>
+        <div>
+            <h3 className="text-gray-500 text-[14px] font-medium mb-1">{title}</h3>
+            <div className={`text-[28px] font-bold tracking-tight ${isAlert ? 'text-red-600' : 'text-gray-900'}`}>
                 {value}
             </div>
         </div>
-        <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-[#FF9F1C]/10 transition-colors" />
     </div>
 );
 
@@ -93,77 +101,93 @@ const DashboardOverview = () => {
     })();
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center mb-8">
+        <div className="space-y-8">
+            <div className="flex justify-between items-center mb-10">
                 <div>
-                    <h1 className="text-3xl font-bold text-white tracking-tight">System Overview</h1>
-                    <p className="text-gray-400 mt-1">Real-time metrics and operational status.</p>
+                    <h1 className="text-[28px] font-semibold text-gray-900 tracking-tight">System Overview</h1>
+                    <p className="text-gray-500 text-[14px] mt-1">Real-time metrics and operational status.</p>
                 </div>
             </div>
 
             {/* KPI Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard title="Total Revenue (Paid)" value={`₹${stats.revenue.toFixed(2)}`} icon={DollarSign} />
+                <StatCard title="Total Revenue (Paid)" value={`₹${stats.revenue.toFixed(2)}`} icon={DollarSign} tooltip="Total revenue from all paid orders." />
                 <StatCard title="Total Orders" value={stats.ordersCount} icon={ShoppingBag} />
                 <StatCard title="Total Users" value={stats.usersCount} icon={TrendingUp} />
-                <StatCard title="Low Stock Alerts" value={stats.lowStock} icon={AlertCircle} isAlert={stats.lowStock > 0} />
+                <StatCard title="Low Stock Alerts" value={stats.lowStock} icon={AlertCircle} isAlert={stats.lowStock > 0} tooltip="Products with 5 or fewer items remaining in inventory." />
             </div>
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-10">
 
                 {/* Revenue from recent orders chart */}
-                <div className="lg:col-span-2 bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                    <h3 className="text-white font-medium mb-2">Recent Revenue (by order date)</h3>
-                    <p className="text-xs text-gray-500 mb-6">Based on the 5 most recent orders</p>
+                <div className="lg:col-span-2 bg-white border border-gray-200 shadow-sm rounded-xl p-7">
+                    <h3 className="text-[18px] font-semibold text-gray-900 mb-2">Recent Revenue (by order date)</h3>
+                    <p className="text-[12px] text-gray-500 mb-8">Based on the 5 most recent orders</p>
                     <div className="h-[280px] w-full">
                         {chartData.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#FF9F1C" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#FF9F1C" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#F59E0B" stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor="#F59E0B" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                    <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} dy={10} />
-                                    <YAxis stroke="#666" axisLine={false} tickLine={false} tickFormatter={(v) => `₹${v}`} />
-                                    <Tooltip contentStyle={{ backgroundColor: '#222', borderColor: '#333', borderRadius: '8px', color: '#fff' }} itemStyle={{ color: '#FF9F1C' }} />
-                                    <Area type="monotone" dataKey="revenue" stroke="#FF9F1C" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
+                                    <XAxis dataKey="name" stroke="#9CA3AF" axisLine={false} tickLine={false} dy={10} fontSize={12} />
+                                    <YAxis stroke="#9CA3AF" axisLine={false} tickLine={false} tickFormatter={(v) => `₹${v}`} fontSize={12} />
+                                    <Tooltip contentStyle={{ backgroundColor: '#fff', borderColor: '#E5E7EB', borderRadius: '8px', color: '#111827', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', fontSize: '12px' }} itemStyle={{ color: '#F59E0B', fontWeight: 600 }} />
+                                    <Area type="monotone" dataKey="revenue" stroke="#F59E0B" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         ) : (
-                            <div className="h-full flex items-center justify-center text-gray-500 text-sm">No order data yet.</div>
+                            <div className="h-full flex items-center justify-center text-gray-500 text-[14px]">No order data yet.</div>
                         )}
                     </div>
                 </div>
 
                 {/* Recent Activity — real orders */}
-                <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                    <h3 className="text-white font-medium mb-6">Recent Orders</h3>
+                <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-7 flex flex-col">
+                    <h3 className="text-[18px] font-semibold text-gray-900 mb-8">Recent Orders</h3>
                     {loading ? (
-                        <p className="text-gray-500 text-sm">Loading...</p>
+                        <div className="flex-1 flex items-center justify-center">
+                            <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+                        </div>
                     ) : recentOrders.length === 0 ? (
-                        <p className="text-gray-500 text-sm">No orders yet.</p>
+                        <div className="flex-1 flex flex-col items-center justify-center text-gray-500 text-center">
+                            <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                                <ShoppingBag size={20} className="text-gray-400" />
+                            </div>
+                            <p className="text-[14px] font-medium text-gray-900">No orders yet today.</p>
+                            <p className="text-[12px] mt-1">Incoming orders will appear here.</p>
+                        </div>
                     ) : (
                         <div className="space-y-4">
                             {recentOrders.map((order) => (
-                                <div key={order._id} className="flex items-center justify-between pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                                <div key={order._id} className="flex items-center justify-between pb-4 border-b border-gray-100 last:border-0 last:pb-0">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-[#FF9F1C]/10 flex items-center justify-center text-[#FF9F1C] font-bold text-xs">
+                                        <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-[12px] border border-blue-100">
                                             {order.user?.name?.charAt(0) || '?'}
                                         </div>
                                         <div>
-                                            <p className="text-sm text-white font-medium font-mono">#{order._id.substring(0, 8).toUpperCase()}</p>
-                                            <p className="text-xs text-gray-400">{order.user?.name || 'Guest'} · {new Date(order.createdAt).toLocaleDateString()}</p>
+                                            <p className="text-[14px] text-gray-900 font-medium font-mono">#{order._id.substring(0, 8).toUpperCase()}</p>
+                                            <p className="text-[12px] text-gray-500">{order.user?.name || 'Guest'} · {new Date(order.createdAt).toLocaleDateString()}</p>
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <p className="text-sm font-bold text-[#FF9F1C]">₹{order.totalPrice.toFixed(2)}</p>
-                                        <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${order.isPaid ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                                            {order.isPaid ? 'Paid' : 'Unpaid'}
-                                        </span>
+                                        <p className="text-[14px] font-semibold text-gray-900">₹{order.totalPrice.toFixed(2)}</p>
+                                        <div className="mt-1">
+                                            {order.isPaid ? (
+                                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-green-700 bg-green-100 px-2 py-0.5 rounded-md">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-600"></span> Paid
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Pending
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}

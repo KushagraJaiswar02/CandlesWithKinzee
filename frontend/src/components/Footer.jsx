@@ -11,7 +11,7 @@ export default function Footer() {
                     <div className="md:col-span-1">
                         <Link to="/" className="mb-6 flex items-center gap-3">
                             <span className="text-2xl font-serif font-bold tracking-tight">
-                                Kindle<span className="font-light text-flame">Light</span>
+                                Candle<span className="font-light text-flame">WithKinzee</span>
                             </span>
                         </Link>
                         <p className="text-[13px] font-light leading-relaxed text-charcoal/70 mb-8 max-w-xs">
@@ -62,7 +62,7 @@ export default function Footer() {
                 </div>
 
                 <div className="pt-8 border-t border-black/5 flex flex-col md:flex-row justify-between items-center gap-6 text-[11px] font-bold uppercase tracking-widest text-charcoal/50">
-                    <p>&copy; {new Date().getFullYear()} KindleLight. All rights reserved.</p>
+                    <p>&copy; {new Date().getFullYear()} CandleWithKinzee. All rights reserved.</p>
                     <div className="flex gap-8">
                         <Link to="/privacy" className="hover:text-flame transition-colors">Privacy Policy</Link>
                         <Link to="/terms" className="hover:text-flame transition-colors">Terms of Service</Link>

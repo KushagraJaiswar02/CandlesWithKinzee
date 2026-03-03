@@ -8,7 +8,7 @@ import { useCart } from '../context/CartContext';
 import candleLogo from '../assets/CANDLE.png';
 import API_BASE_URL from '../config/api';
 
-const Header = () => {
+const Header = ({ isAdminPanel = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [landingConfig, setLandingConfig] = useState(null);
@@ -28,7 +28,7 @@ const Header = () => {
         fetch(`${API_BASE_URL}/api/landing-config`)
             .then(r => r.ok ? r.json() : null)
             .then(data => { if (data) setLandingConfig(data); })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     // Icons
@@ -56,134 +56,135 @@ const Header = () => {
                 </div>
             )}
             <motion.header
-                className={`left-0 w-full z-50 transition-all duration-500 ease-in-out px-4 sm:px-8 
-                    ${landingConfig?.discountBannerActive ? 'sticky top-0' : 'fixed top-0'}
-                    ${scrolled ? 'bg-beige/90 backdrop-blur-md shadow-sm border-b border-black/5 py-4' : 'bg-transparent py-6'}`}
+                className={`left-0 w-full z-[100] transition-all duration-500 ease-in-out px-4 sm:px-8 
+                    ${isAdminPanel ? 'relative bg-stone-50 shadow-sm border-b border-black/5 py-4' : landingConfig?.discountBannerActive ? 'sticky top-0' : 'fixed top-0'}
+                    ${!isAdminPanel && scrolled ? 'bg-beige/90 backdrop-blur-md shadow-sm border-b border-black/5 py-4' : ''}
+                    ${!isAdminPanel && !scrolled ? 'bg-transparent py-6' : ''}`}
             >
-            <div className="max-w-7xl mx-auto flex justify-between items-center">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
 
-                {/* 1. Logo (Left) */}
-                <Link to="/" className="group z-50 flex items-center gap-3">
-                    <span className="text-xl md:text-2xl font-serif font-bold tracking-tight text-charcoal">
-                        Candle<span className="font-light text-flame">WithKinzee</span>
-                    </span>
-                </Link>
-
-                {/* 2. Desktop Navigation (Center) */}
-                <nav className="hidden md:flex items-center space-x-10 absolute left-1/2 transform -translate-x-1/2">
-                    {navLinks.map((link) => (
-                        <NavLink
-                            key={link.path}
-                            to={link.path}
-                            className={({ isActive }) =>
-                                `text-[13px] font-medium tracking-widest uppercase transition-all duration-300 relative group text-charcoal hover:text-flame ${isActive ? 'font-bold' : ''}`
-                            }
-                        >
-                            {({ isActive: isCurrent }) => (
-                                <>
-                                    {link.label}
-                                    <span className={`absolute -bottom-1.5 left-0 h-[1.5px] transition-all duration-300 group-hover:w-full bg-flame ${isCurrent ? 'w-full' : 'w-0'}`}></span>
-                                </>
-                            )}
-                        </NavLink>
-                    ))}
-                </nav>
-
-                {/* 3. Action Icons (Right) */}
-                <div className="hidden md:flex items-center space-x-6 text-charcoal">
-                    <button className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Search">
-                        <SearchIcon />
-                    </button>
-                    <Link to="/cart" className="relative hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Cart">
-                        <ShoppingCartIcon />
-                        {cartCount > 0 && (
-                            <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-flame text-[9px] text-white font-bold shadow-sm">
-                                {cartCount}
-                            </span>
-                        )}
+                    {/* 1. Logo (Left) */}
+                    <Link to="/" className="group z-50 flex items-center gap-3">
+                        <span className="text-xl md:text-2xl font-serif font-bold tracking-tight text-charcoal">
+                            Candle<span className="font-light text-flame">WithKinzee</span>
+                        </span>
                     </Link>
-                    {user ? (
-                        <>
-                            {user.isAdmin ? (
-                                <Link to="/admin" className="hover:text-flame transition-colors font-medium text-[12px] tracking-widest uppercase flex items-center gap-1.5" title="Admin Panel">
-                                    <UserIcon /> Admin
-                                </Link>
-                            ) : (
-                                <Link to="/profile" className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Profile">
-                                    <UserIcon />
-                                </Link>
-                            )}
-                            <button onClick={() => { logout(); navigate('/'); }} className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Logout">
-                                <LogoutIcon />
-                            </button>
-                        </>
-                    ) : (
-                        <Link to="/login" className="bg-charcoal text-white hover:bg-flame transition-colors px-5 py-2 rounded-full text-[11px] font-medium tracking-widest uppercase whitespace-nowrap">
-                            Login / Signup
-                        </Link>
-                    )}
-                </div>
 
-                {/* Mobile Menu Toggle */}
-                <div className="md:hidden z-50 flex items-center gap-5 text-charcoal">
-                    <Link to="/cart" className="relative hover:text-flame transition-colors">
-                        <ShoppingCartIcon />
-                        {cartCount > 0 && (
-                            <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-flame text-[9px] text-white font-bold">
-                                {cartCount}
-                            </span>
-                        )}
-                    </Link>
-                    <button onClick={() => setIsOpen(!isOpen)} className="hover:text-flame transition-colors">
-                        {isOpen ? <XIcon /> : <MenuIcon />}
-                    </button>
-                </div>
-            </div>
-
-            {/* Mobile Menu Overlay */}
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="absolute top-full left-0 w-full bg-white shadow-xl border-t border-black/5 py-6 px-6 flex flex-col space-y-5 md:hidden"
-                    >
+                    {/* 2. Desktop Navigation (Center) */}
+                    <nav className="hidden md:flex items-center space-x-10 absolute left-1/2 transform -translate-x-1/2">
                         {navLinks.map((link) => (
-                            <Link
+                            <NavLink
                                 key={link.path}
                                 to={link.path}
-                                className="text-sm font-medium tracking-widest uppercase text-charcoal"
-                                onClick={() => setIsOpen(false)}
+                                className={({ isActive }) =>
+                                    `text-[13px] font-medium tracking-widest uppercase transition-all duration-300 relative group text-charcoal hover:text-flame ${isActive ? 'font-bold' : ''}`
+                                }
                             >
-                                {link.label}
-                            </Link>
+                                {({ isActive: isCurrent }) => (
+                                    <>
+                                        {link.label}
+                                        <span className={`absolute -bottom-1.5 left-0 h-[1.5px] transition-all duration-300 group-hover:w-full bg-flame ${isCurrent ? 'w-full' : 'w-0'}`}></span>
+                                    </>
+                                )}
+                            </NavLink>
                         ))}
-                        <hr className="border-black/5" />
+                    </nav>
+
+                    {/* 3. Action Icons (Right) */}
+                    <div className="hidden md:flex items-center space-x-6 text-charcoal">
+                        <button className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Search">
+                            <SearchIcon />
+                        </button>
+                        <Link to="/cart" className="relative hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Cart">
+                            <ShoppingCartIcon />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-flame text-[9px] text-white font-bold shadow-sm">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
                         {user ? (
                             <>
                                 {user.isAdmin ? (
-                                    <Link to="/admin" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
-                                        <UserIcon /> Admin Panel
+                                    <Link to="/admin" className="hover:text-flame transition-colors font-medium text-[12px] tracking-widest uppercase flex items-center gap-1.5" title="Admin Panel">
+                                        <UserIcon /> Admin
                                     </Link>
                                 ) : (
-                                    <Link to="/profile" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
-                                        <UserIcon /> My Profile
+                                    <Link to="/profile" className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Profile">
+                                        <UserIcon />
                                     </Link>
                                 )}
-                                <button onClick={() => { logout(); setIsOpen(false); navigate('/'); }} className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3 text-left">
-                                    <LogoutIcon /> Logout
+                                <button onClick={() => { logout(); navigate('/'); }} className="hover:text-flame transition-colors opacity-80 hover:opacity-100" title="Logout">
+                                    <LogoutIcon />
                                 </button>
                             </>
                         ) : (
-                            <Link to="/login" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
-                                <UserIcon /> Login / Signup
+                            <Link to="/login" className="bg-charcoal text-white hover:bg-flame transition-colors px-5 py-2 rounded-full text-[11px] font-medium tracking-widest uppercase whitespace-nowrap">
+                                Login / Signup
                             </Link>
                         )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </motion.header>
+                    </div>
+
+                    {/* Mobile Menu Toggle */}
+                    <div className="md:hidden z-50 flex items-center gap-5 text-charcoal">
+                        <Link to="/cart" className="relative hover:text-flame transition-colors">
+                            <ShoppingCartIcon />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-flame text-[9px] text-white font-bold">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
+                        <button onClick={() => setIsOpen(!isOpen)} className="hover:text-flame transition-colors">
+                            {isOpen ? <XIcon /> : <MenuIcon />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Menu Overlay */}
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="absolute top-full left-0 w-full bg-white shadow-xl border-t border-black/5 py-6 px-6 flex flex-col space-y-5 md:hidden"
+                        >
+                            {navLinks.map((link) => (
+                                <Link
+                                    key={link.path}
+                                    to={link.path}
+                                    className="text-sm font-medium tracking-widest uppercase text-charcoal"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    {link.label}
+                                </Link>
+                            ))}
+                            <hr className="border-black/5" />
+                            {user ? (
+                                <>
+                                    {user.isAdmin ? (
+                                        <Link to="/admin" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
+                                            <UserIcon /> Admin Panel
+                                        </Link>
+                                    ) : (
+                                        <Link to="/profile" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
+                                            <UserIcon /> My Profile
+                                        </Link>
+                                    )}
+                                    <button onClick={() => { logout(); setIsOpen(false); navigate('/'); }} className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3 text-left">
+                                        <LogoutIcon /> Logout
+                                    </button>
+                                </>
+                            ) : (
+                                <Link to="/login" className="text-sm font-medium tracking-widest uppercase text-charcoal flex items-center gap-3" onClick={() => setIsOpen(false)}>
+                                    <UserIcon /> Login / Signup
+                                </Link>
+                            )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.header>
         </>
     );
 };
