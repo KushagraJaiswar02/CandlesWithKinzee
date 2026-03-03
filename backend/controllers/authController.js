@@ -17,7 +17,7 @@ const registerUser = async (req, res) => {
 
     const user = await User.create({
         name,
-        email,
+        email: safeEmail,   // always store lowercase
         password
     });
 
@@ -78,7 +78,8 @@ const getUserProfile = async (req, res) => {
             profileImage: user.profileImage,
             phoneNumber: user.phoneNumber,
             addresses: user.addresses,
-            paymentMethods: user.paymentMethods
+            paymentMethods: user.paymentMethods,
+            createdAt: user.createdAt
         });
     } else {
         res.status(404).json({ message: 'User not found' });
@@ -125,6 +126,7 @@ const updateUserProfile = async (req, res) => {
             phoneNumber: updatedUser.phoneNumber,
             addresses: updatedUser.addresses,
             paymentMethods: updatedUser.paymentMethods,
+            createdAt: updatedUser.createdAt,
             token: generateToken(updatedUser._id)
         });
     } else {

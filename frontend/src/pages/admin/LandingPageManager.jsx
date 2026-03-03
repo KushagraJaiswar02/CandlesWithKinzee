@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     Save,
     Image as ImageIcon,
@@ -6,44 +6,121 @@ import {
     ToggleRight,
     CalendarDays,
     CreditCard,
-    LayoutTemplate
+    LayoutTemplate,
+    CheckCircle2,
+    RefreshCw
 } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
+import AuthContext from '../../context/AuthContext';
+import API_BASE_URL from '../../config/api';
+
+const STORAGE_KEY = 'cwk_landing_config'; // fallback only
+
+const DEFAULT_CONFIG = {
+    heroTitle: 'CANDLES WITH KINZEE',
+    heroSubtitle: 'Hand-poured perfection for your sacred spaces.',
+    heroImage: '',
+    festiveModeActive: false,
+    discountBannerActive: true,
+    discountBannerText: 'FREE SHIPPING ON ORDERS OVER ₹999',
+    featuredCollection: 'Aromatherapy',
+};
 
 const LandingPageManager = () => {
-    const [config, setConfig] = useState({
-        heroTitle: 'CANDLE WITH KINZEE',
-        heroSubtitle: 'Hand-poured perfection for your sacred spaces.',
-        heroImage: '',
-        festiveModeActive: false,
-        discountBannerActive: true,
-        discountBannerText: 'FREE SHIPPING ON ORDERS OVER $50',
-        featuredCollection: 'Aromatherapy'
-    });
-
+    const { addToast } = useToast();
+    const { user } = useContext(AuthContext);
+    const [config, setConfig] = useState(DEFAULT_CONFIG);
+    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
 
-    const handleSave = () => {
+    // Load from backend on mount
+    useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/landing-config`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setConfig({
+                        heroTitle: data.heroTitle ?? DEFAULT_CONFIG.heroTitle,
+                        heroSubtitle: data.heroSubtitle ?? DEFAULT_CONFIG.heroSubtitle,
+                        heroImage: data.heroImage ?? DEFAULT_CONFIG.heroImage,
+                        festiveModeActive: data.festiveModeActive ?? DEFAULT_CONFIG.festiveModeActive,
+                        discountBannerActive: data.discountBannerActive ?? DEFAULT_CONFIG.discountBannerActive,
+                        discountBannerText: data.discountBannerText ?? DEFAULT_CONFIG.discountBannerText,
+                        featuredCollection: data.featuredCollection ?? DEFAULT_CONFIG.featuredCollection,
+                    });
+                } else {
+                    throw new Error('API error');
+                }
+            } catch {
+                // Fallback: load from localStorage
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    try { setConfig(JSON.parse(stored)); } catch (_) {}
+                }
+                addToast('Could not load config from server — showing cached version.', 'error');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchConfig();
+    }, []);
+
+    const handleSave = async () => {
         setSaving(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/landing-config`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify(config),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.message || 'Save failed');
+            }
+
+            // Also mirror to localStorage as a quick-read cache
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+
+            setSaved(true);
+            addToast('Landing page config saved!', 'success');
+            setTimeout(() => setSaved(false), 3000);
+        } catch (e) {
+            addToast(e.message || 'Failed to save config', 'error');
+        } finally {
             setSaving(false);
-        }, 1000);
+        }
     };
+
+    const set = (key, value) => setConfig(prev => ({ ...prev, [key]: value }));
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[50vh]">
+                <RefreshCw size={24} className="text-[#FF9F1C] animate-spin" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6 max-w-5xl">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Landing Page Configuration</h1>
-                    <p className="text-gray-400 mt-1">Manage storefront content, banners, and featured components.</p>
+                    <p className="text-gray-400 mt-1">Changes are saved to the database and take effect immediately across all devices.</p>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 px-6 py-2.5 bg-[#FF9F1C] hover:bg-[#ffaa33] text-[#111] font-bold rounded-lg transition-colors disabled:opacity-50"
+                    className={`flex items-center gap-2 px-6 py-2.5 font-bold rounded-lg transition-all disabled:opacity-50 ${saved ? 'bg-green-500 text-white' : 'bg-[#FF9F1C] hover:bg-[#ffaa33] text-[#111]'}`}
                 >
-                    <Save size={18} />
-                    {saving ? 'Publishing...' : 'Publish Changes'}
+                    {saved ? <CheckCircle2 size={18} /> : saving ? <RefreshCw size={18} className="animate-spin" /> : <Save size={18} />}
+                    {saved ? 'Saved!' : saving ? 'Saving...' : 'Publish Changes'}
                 </button>
             </div>
 
@@ -67,7 +144,7 @@ const LandingPageManager = () => {
                                 <input
                                     type="text"
                                     value={config.heroTitle}
-                                    onChange={(e) => setConfig({ ...config, heroTitle: e.target.value })}
+                                    onChange={e => set('heroTitle', e.target.value)}
                                     className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF9F1C] transition-colors"
                                 />
                             </div>
@@ -78,7 +155,7 @@ const LandingPageManager = () => {
                                 </label>
                                 <textarea
                                     value={config.heroSubtitle}
-                                    onChange={(e) => setConfig({ ...config, heroSubtitle: e.target.value })}
+                                    onChange={e => set('heroSubtitle', e.target.value)}
                                     rows="3"
                                     className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-[#FF9F1C] transition-colors"
                                 />
@@ -88,23 +165,26 @@ const LandingPageManager = () => {
                                 <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
                                     <ImageIcon size={14} /> Background Image URL
                                 </label>
-                                <div className="flex gap-3">
-                                    <input
-                                        type="text"
-                                        placeholder="https://..."
-                                        value={config.heroImage}
-                                        onChange={(e) => setConfig({ ...config, heroImage: e.target.value })}
-                                        className="flex-1 bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF9F1C] transition-colors"
+                                <input
+                                    type="text"
+                                    placeholder="https://..."
+                                    value={config.heroImage}
+                                    onChange={e => set('heroImage', e.target.value)}
+                                    className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-[#FF9F1C] transition-colors"
+                                />
+                                {config.heroImage && (
+                                    <img
+                                        src={config.heroImage}
+                                        alt="Hero preview"
+                                        className="mt-3 w-full h-32 object-cover rounded-lg border border-white/10 opacity-70"
+                                        onError={e => { e.target.style.display = 'none'; }}
                                     />
-                                    <button className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-white font-medium transition-colors whitespace-nowrap">
-                                        Media Library
-                                    </button>
-                                </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Promotional Banners */}
+                    {/* Announcement Banner */}
                     <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
                         <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
                             <CreditCard className="text-[#A78BFA]" size={20} />
@@ -115,10 +195,10 @@ const LandingPageManager = () => {
                             <div className="flex items-center justify-between p-4 bg-[#111] border border-white/5 rounded-lg">
                                 <div>
                                     <h3 className="text-white font-medium">Enable Top Banner</h3>
-                                    <p className="text-sm text-gray-500 mt-1">Displays a full-width alert above the navigation.</p>
+                                    <p className="text-sm text-gray-500 mt-1">Displays a full-width announcement above the navigation.</p>
                                 </div>
                                 <button
-                                    onClick={() => setConfig({ ...config, discountBannerActive: !config.discountBannerActive })}
+                                    onClick={() => set('discountBannerActive', !config.discountBannerActive)}
                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${config.discountBannerActive ? 'bg-[#FF9F1C]' : 'bg-gray-600'}`}
                                 >
                                     <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${config.discountBannerActive ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -130,18 +210,23 @@ const LandingPageManager = () => {
                                 <input
                                     type="text"
                                     value={config.discountBannerText}
-                                    onChange={(e) => setConfig({ ...config, discountBannerText: e.target.value })}
+                                    onChange={e => set('discountBannerText', e.target.value)}
                                     className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#A78BFA] transition-colors"
                                 />
+                                {config.discountBannerActive && (
+                                    <div className="mt-3 p-3 bg-[#FF9F1C]/10 border border-[#FF9F1C]/20 rounded-lg text-center text-sm text-[#FF9F1C] font-medium">
+                                        Preview: {config.discountBannerText}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                {/* Sidebar Settings */}
+                {/* Sidebar */}
                 <div className="space-y-6">
 
+                    {/* Festive Mode */}
                     <div className="bg-[#1A1A1A] border border-[#FF9F1C]/20 rounded-xl p-6 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-24 h-24 bg-[#FF9F1C]/10 rounded-bl-full blur-xl" />
                         <div className="flex items-center gap-2 mb-4">
@@ -149,41 +234,45 @@ const LandingPageManager = () => {
                             <h2 className="text-lg font-bold text-white">Festive Overlay</h2>
                         </div>
                         <p className="text-sm text-gray-400 mb-6">
-                            Enables special holiday-themed styling, falling snow effects, and premium gold accents across the storefront.
+                            Enables holiday-themed styling and premium gold accents across the storefront.
                         </p>
                         <button
-                            onClick={() => setConfig({ ...config, festiveModeActive: !config.festiveModeActive })}
+                            onClick={() => set('festiveModeActive', !config.festiveModeActive)}
                             className={`w-full py-3 rounded-lg font-bold transition-all ${config.festiveModeActive ? 'bg-[#FF9F1C] text-[#111] shadow-[0_0_15px_rgba(255,159,28,0.4)]' : 'bg-[#111] text-gray-400 border border-white/10 hover:border-white/20'}`}
                         >
-                            {config.festiveModeActive ? 'FESTIVE MODE: ACTIVE' : 'Enable Festive Mode'}
+                            {config.festiveModeActive ? '🎄 FESTIVE MODE: ACTIVE' : 'Enable Festive Mode'}
                         </button>
                     </div>
 
+                    {/* Featured Collection */}
                     <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
                         <div className="flex items-center gap-2 mb-6 border-b border-white/5 pb-4">
                             <CalendarDays className="text-blue-400" size={20} />
                             <h2 className="text-lg font-bold text-white">Storefront Display</h2>
                         </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">Featured Collection</label>
-                                <select
-                                    value={config.featuredCollection}
-                                    onChange={(e) => setConfig({ ...config, featuredCollection: e.target.value })}
-                                    className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition-colors appearance-none"
-                                >
-                                    <option value="Aromatherapy">Aromatherapy</option>
-                                    <option value="Best Sellers">Best Sellers</option>
-                                    <option value="Seasonal">Seasonal Specials</option>
-                                    <option value="New Arrivals">New Arrivals</option>
-                                </select>
-                            </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">Featured Collection</label>
+                            <select
+                                value={config.featuredCollection}
+                                onChange={e => set('featuredCollection', e.target.value)}
+                                className="w-full bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-400 transition-colors appearance-none"
+                            >
+                                <option value="Aromatherapy">Aromatherapy</option>
+                                <option value="Best Sellers">Best Sellers</option>
+                                <option value="Seasonal">Seasonal Specials</option>
+                                <option value="New Arrivals">New Arrivals</option>
+                            </select>
                         </div>
                     </div>
 
+                    {/* Live DB snapshot */}
+                    <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
+                        <h2 className="text-xs font-medium text-gray-500 uppercase tracking-widest mb-4">Current Config (DB)</h2>
+                        <pre className="text-xs text-gray-500 overflow-auto max-h-48 whitespace-pre-wrap break-all">
+                            {JSON.stringify(config, null, 2)}
+                        </pre>
+                    </div>
                 </div>
-
             </div>
         </div>
     );

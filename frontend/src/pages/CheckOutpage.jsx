@@ -236,7 +236,7 @@ const CheckoutPage = () => {
     const ShippingForm = () => (
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-4">
             <h2 className="text-2xl font-bold text-brown flex items-center space-x-2">{LocationIcon()} <span>Shipping Address</span></h2>
-            [cite_start]<p className="text-charcoal/70 text-sm">Location tracking helps with shipping estimation and address autofill[cite: 13].</p>
+            <p className="text-charcoal/70 text-sm">Enter your shipping address below for delivery.</p>
 
             {/* Saved Addresses Selection */}
             {user?.addresses?.length > 0 && (
@@ -284,12 +284,12 @@ const CheckoutPage = () => {
     const PaymentForm = () => (
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-4">
             <h2 className="text-2xl font-bold text-brown flex items-center space-x-2">{PaymentIcon()} <span>Payment Method</span></h2>
-            [cite_start]<p className="text-charcoal/70 text-sm">Secure online transactions with payment gateway integration (Razorpay / Stripe)[cite: 9, 14, 18].</p>
+            <p className="text-charcoal/70 text-sm">Your payment is processed securely via Razorpay. We never store your card details.</p>
 
             {/* Simulated Payment Gateway Form */}
             <div className="p-6 bg-beige rounded-lg border border-shadow space-y-4">
-                <p className="text-sm text-charcoal flex items-center">
-                    [cite_start]{LockIcon()} **Security is key.** You will be redirected to Razorpay's secure payment gateway to complete your purchase.[cite: 37].
+                <p className="text-sm text-charcoal flex items-center gap-2">
+                    {LockIcon()} <strong>Security is key.</strong> You will be redirected to Razorpay's secure payment gateway to complete your purchase.
                 </p>
                 <div className="flex items-center space-x-3 p-3 bg-white rounded border border-shadow/30">
                     <span className="font-bold text-lg text-blue-800">Razorpay</span>
@@ -321,7 +321,7 @@ const CheckoutPage = () => {
     const ReviewOrder = () => (
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-6">
             <h2 className="text-2xl font-bold text-brown">Review & Place Order</h2>
-            [cite_start]<p className="text-charcoal/70 text-sm">Final check before placing your order. Security is Flipkart-like secure checkout and encryption for user data[cite: 13].</p>
+            <p className="text-charcoal/70 text-sm">Review your details carefully before placing the order.</p>
 
             {/* Review Sections */}
             <div className="grid md:grid-cols-2 gap-6">
@@ -345,7 +345,7 @@ const CheckoutPage = () => {
                 whileTap={{ scale: 0.98 }}
                 onClick={handlePlaceOrder}
             >
-                Place Order (${total.toFixed(2)})
+                Place Order (₹{total.toFixed(2)})
             </motion.button>
 
         </motion.div>
@@ -405,20 +405,20 @@ const CheckoutPage = () => {
                             <div className="space-y-4 text-charcoal">
                                 <div className="flex justify-between">
                                     <span className="text-md opacity-80">Subtotal</span>
-                                    <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                                    <span className="font-semibold">{subtotal.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-md opacity-80">Shipping</span>
-                                    <span className="font-semibold text-primary">${shipping.toFixed(2)}</span>
+                                    <span className="font-semibold text-primary">₹{shipping.toFixed(2)}</span>
                                 </div>
                                 <div className="flex justify-between border-b border-brown/10 pb-4">
-                                    <span className="text-md opacity-80">Taxes (8%)</span>
-                                    <span className="font-semibold">${taxes.toFixed(2)}</span>
+                                    <span className="text-md opacity-80">Taxes</span>
+                                    <span className="font-semibold">₹{taxes.toFixed(2)}</span>
                                 </div>
 
                                 <div className="flex justify-between pt-2">
                                     <span className="text-xl font-bold text-charcoal">Total</span>
-                                    <span className="text-3xl font-serif text-flame">${total.toFixed(2)}</span>
+                                    <span className="text-3xl font-serif text-flame">₹{total.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

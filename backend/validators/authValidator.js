@@ -1,6 +1,6 @@
 const { z } = require('zod');
 
-// ─── Register ────────────────────────────────────────────────────────────────
+// Register 
 const registerSchema = z.object({
     name: z
         .string({ required_error: 'Name is required' })
@@ -55,15 +55,21 @@ const updateProfileSchema = z
     .object({
         name: z.string().trim().min(2).max(50).optional(),
         email: z.string().trim().toLowerCase().email().optional(),
-        password: z.string().min(8).max(100).optional(),
-        phoneNumber: z
-            .string()
-            .regex(/^\+?[1-9]\d{6,14}$/, 'Invalid phone number')
-            .optional(),
-        profileImage: z.string().url('Invalid image URL').optional(),
+        password: z.preprocess(
+            (val) => (val === '' ? undefined : val),
+            z.string().min(8, 'Password must be at least 8 characters').max(100).optional()
+        ),
+        phoneNumber: z.preprocess(
+            (val) => (val === '' ? undefined : val),
+            z.string().regex(/^\+?[1-9]\d{6,14}$/, 'Invalid phone number — use international format, e.g. +919876543210').optional()
+        ),
+        profileImage: z.preprocess(
+            (val) => (val === '' ? undefined : val),
+            z.string().url('Profile image must be a valid URL').optional()
+        ),
         addresses: z.array(addressSchema).max(10).optional(),
         paymentMethods: z.array(paymentMethodSchema).max(10).optional(),
     })
-    .strict(); // reject any unknown keys entirely
+    .strip(); // drop unknown keys (e.g. _id, token) silently — don't throw
 
 module.exports = { registerSchema, loginSchema, updateProfileSchema };

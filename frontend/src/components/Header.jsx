@@ -6,10 +6,12 @@ import AuthContext from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
 import candleLogo from '../assets/CANDLE.png';
+import API_BASE_URL from '../config/api';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
+    const [landingConfig, setLandingConfig] = useState(null);
     const { user, logout } = React.useContext(AuthContext);
     const { cartCount } = useCart();
     const navigate = useNavigate();
@@ -21,6 +23,13 @@ const Header = () => {
             setScrolled(latest > 50);
         });
     }, [scrollY]);
+
+    useEffect(() => {
+        fetch(`${API_BASE_URL}/api/landing-config`)
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data) setLandingConfig(data); })
+            .catch(() => {});
+    }, []);
 
     // Icons
     const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>;
@@ -39,10 +48,18 @@ const Header = () => {
     ];
 
     return (
-        <motion.header
-            className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out px-4 sm:px-8 
-                ${scrolled ? 'bg-beige/90 backdrop-blur-md shadow-sm border-b border-black/5 py-4' : 'bg-transparent py-6'}`}
-        >
+        <>
+            {/* Announcement Banner */}
+            {landingConfig?.discountBannerActive && landingConfig?.discountBannerText && (
+                <div className="w-full bg-charcoal text-white text-center text-[11px] font-medium tracking-widest uppercase py-2 px-4">
+                    {landingConfig.discountBannerText}
+                </div>
+            )}
+            <motion.header
+                className={`left-0 w-full z-50 transition-all duration-500 ease-in-out px-4 sm:px-8 
+                    ${landingConfig?.discountBannerActive ? 'sticky top-0' : 'fixed top-0'}
+                    ${scrolled ? 'bg-beige/90 backdrop-blur-md shadow-sm border-b border-black/5 py-4' : 'bg-transparent py-6'}`}
+            >
             <div className="max-w-7xl mx-auto flex justify-between items-center">
 
                 {/* 1. Logo (Left) */}
@@ -167,6 +184,7 @@ const Header = () => {
                 )}
             </AnimatePresence>
         </motion.header>
+        </>
     );
 };
 

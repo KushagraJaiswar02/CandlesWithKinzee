@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     BarChart as BarChartIcon,
     TrendingUp,
     Users,
     Activity,
-    Calendar,
     Download
 } from 'lucide-react';
 import {
@@ -21,31 +20,8 @@ import {
     ResponsiveContainer,
     Legend
 } from 'recharts';
-
-// Mock Data
-const revenueData = [
-    { name: 'Jan', current: 4000, previous: 2400 },
-    { name: 'Feb', current: 3000, previous: 1398 },
-    { name: 'Mar', current: 5000, previous: 8800 },
-    { name: 'Apr', current: 2780, previous: 3908 },
-    { name: 'May', current: 6890, previous: 4800 },
-    { name: 'Jun', current: 8390, previous: 3800 },
-    { name: 'Jul', current: 7490, previous: 4300 },
-];
-
-const categoryData = [
-    { name: 'Soy Wax', sales: 400 },
-    { name: 'Aromatherapy', sales: 300 },
-    { name: 'Pillars', sales: 300 },
-    { name: 'Seasonal', sales: 200 },
-];
-
-const customerGrowthData = [
-    { name: 'Week 1', new: 120, returning: 80 },
-    { name: 'Week 2', new: 180, returning: 90 },
-    { name: 'Week 3', new: 250, returning: 110 },
-    { name: 'Week 4', new: 320, returning: 150 },
-];
+import AuthContext from '../../context/AuthContext';
+import API_BASE_URL from '../../config/api';
 
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
@@ -65,14 +41,11 @@ const CustomTooltip = ({ active, payload, label }) => {
     return null;
 };
 
-const StatCard = ({ title, value, subtext, icon: Icon, trend }) => (
+const StatCard = ({ title, value, subtext, icon: Icon }) => (
     <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
         <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-gray-400">
                 <Icon size={20} />
-            </div>
-            <div className={`text-sm font-medium ${trend > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {trend > 0 ? '+' : ''}{trend}%
             </div>
         </div>
         <h3 className="text-gray-400 text-sm mb-1">{title}</h3>
@@ -82,7 +55,78 @@ const StatCard = ({ title, value, subtext, icon: Icon, trend }) => (
 );
 
 const AnalyticsView = () => {
-    const [timefrane, setTimeframe] = useState('Month');
+    const { user } = useContext(AuthContext);
+    const [stats, setStats] = useState(null);
+    const [orders, setOrders] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const headers = { Authorization: `Bearer ${user.token}` };
+                const [statsRes, ordersRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/api/admin/stats`, { headers }),
+                    fetch(`${API_BASE_URL}/api/orders`, { headers }),
+                ]);
+                if (statsRes.ok) setStats(await statsRes.json());
+                if (ordersRes.ok) setOrders(await ordersRes.json());
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [user.token]);
+
+    // Compute AOV
+    const paidOrders = orders.filter(o => o.isPaid);
+    const aov = paidOrders.length > 0
+        ? (paidOrders.reduce((a, o) => a + o.totalPrice, 0) / paidOrders.length).toFixed(2)
+        : '0.00';
+
+    // Build category sales from order items
+    const categoryMap = {};
+    orders.forEach(o => {
+        o.orderItems?.forEach(item => {
+            const cat = item.name?.split(' ')[0] || 'Other';
+            categoryMap[cat] = (categoryMap[cat] || 0) + item.quantity;
+        });
+    });
+    const categoryData = Object.entries(categoryMap)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 6)
+        .map(([name, sales]) => ({ name, sales }));
+
+    // Revenue by recent days
+    const dayMap = {};
+    orders.forEach(o => {
+        const d = new Date(o.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+        dayMap[d] = (dayMap[d] || 0) + (o.totalPrice || 0);
+    });
+    const revenueData = Object.entries(dayMap)
+        .slice(-7)
+        .map(([name, revenue]) => ({ name, revenue }));
+
+    const handleExport = () => {
+        if (!stats) return;
+        const csv = [
+            ['Metric', 'Value'],
+            ['Total Revenue', stats.totalRevenue],
+            ['Total Orders', stats.totalOrders],
+            ['Total Users', stats.totalUsers],
+            ['Low Stock Products', stats.lowStockProducts],
+            ['Avg Order Value', aov],
+            ['Paid Orders', paidOrders.length],
+        ].map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `analytics_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div className="space-y-6">
@@ -90,104 +134,98 @@ const AnalyticsView = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-bold text-white tracking-tight">Analytics & Intelligence</h1>
-                    <p className="text-gray-400 mt-1">Deep dive into store performance and growth.</p>
+                    <p className="text-gray-400 mt-1">Store performance based on real order data.</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center bg-[#1A1A1A] border border-white/5 rounded-lg p-1">
-                        {['Week', 'Month', 'Year'].map(t => (
-                            <button
-                                key={t}
-                                onClick={() => setTimeframe(t)}
-                                className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${timefrane === t ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
-                            >
-                                {t}
-                            </button>
-                        ))}
-                    </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-[#FF9F1C] hover:bg-[#ffaa33] text-[#111] font-medium rounded-lg transition-colors">
-                        <Download size={18} /> Export Report
-                    </button>
-                </div>
+                <button
+                    onClick={handleExport}
+                    disabled={loading || !stats}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#FF9F1C] hover:bg-[#ffaa33] text-[#111] font-medium rounded-lg transition-colors disabled:opacity-50"
+                >
+                    <Download size={18} /> Export CSV
+                </button>
             </div>
 
             {/* Hero KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatCard title="Net Revenue" value="$42,890.00" subtext="Compared to $38,400 last period" icon={BarChartIcon} trend={11.4} />
-                <StatCard title="Orders Count" value="1,280" subtext="Compared to 1,150 last period" icon={Activity} trend={8.2} />
-                <StatCard title="Average Order Value" value="$64.50" subtext="Compared to $61.20 last period" icon={TrendingUp} trend={4.5} />
-                <StatCard title="Repeat Purchase Rate" value="32.4%" subtext="Compared to 28.1% last period" icon={Users} trend={15.2} />
+                <StatCard title="Net Revenue (Paid)" value={loading ? '—' : `₹${stats?.totalRevenue?.toFixed(2) || '0.00'}`} subtext="From verified paid orders" icon={BarChartIcon} />
+                <StatCard title="Total Orders" value={loading ? '—' : stats?.totalOrders ?? 0} subtext="All time orders" icon={Activity} />
+                <StatCard title="Avg. Order Value" value={loading ? '—' : `₹${aov}`} subtext="Paid orders only" icon={TrendingUp} />
+                <StatCard title="Total Customers" value={loading ? '—' : stats?.totalUsers ?? 0} subtext="Registered accounts" icon={Users} />
             </div>
 
-            {/* Complex Charts Grid */}
+            {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                {/* Revenue Multi-Line Chart */}
+                {/* Revenue over time */}
                 <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6 lg:col-span-2">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-white font-medium">Revenue Comparison</h3>
-                        <button className="text-sm text-gray-400 hover:text-white flex items-center gap-2 border border-white/10 px-3 py-1.5 rounded-lg">
-                            <Calendar size={14} /> Year over Year
-                        </button>
-                    </div>
-                    <div className="h-[350px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <defs>
-                                    <linearGradient id="colorCurrent" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#FF9F1C" stopOpacity={0.8} />
-                                        <stop offset="95%" stopColor="#FF9F1C" stopOpacity={0} />
-                                    </linearGradient>
-                                    <linearGradient id="colorPrev" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#4B5563" stopOpacity={0.8} />
-                                        <stop offset="95%" stopColor="#4B5563" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#666" axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
-                                <Area type="monotone" name="Current Period" dataKey="current" stroke="#FF9F1C" strokeWidth={2} fillOpacity={1} fill="url(#colorCurrent)" />
-                                <Area type="monotone" name="Previous Period" dataKey="previous" stroke="#4B5563" strokeWidth={2} fillOpacity={0.5} fill="url(#colorPrev)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                    <h3 className="text-white font-medium mb-6">Revenue Over Time (by order date)</h3>
+                    <div className="h-[300px] w-full">
+                        {revenueData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#FF9F1C" stopOpacity={0.8} />
+                                            <stop offset="95%" stopColor="#FF9F1C" stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                                    <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} dy={10} />
+                                    <YAxis stroke="#666" axisLine={false} tickLine={false} tickFormatter={(v) => `₹${v}`} />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Area type="monotone" name="Revenue (₹)" dataKey="revenue" stroke="#FF9F1C" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-gray-500 text-sm">{loading ? 'Loading...' : 'No order data yet.'}</div>
+                        )}
                     </div>
                 </div>
 
-                {/* Category Sales Bar Chart */}
+                {/* Category Sales */}
                 <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                    <h3 className="text-white font-medium mb-6">Sales by Category</h3>
+                    <h3 className="text-white font-medium mb-6">Units Sold by Product Name (Top 6)</h3>
                     <div className="h-[250px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={categoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#666" axisLine={false} tickLine={false} />
-                                <Tooltip content={<CustomTooltip />} cursor={{ fill: '#2bc1c1', opacity: 0.1 }} />
-                                <Bar dataKey="sales" name="Units Sold" fill="#FF9F1C" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        {categoryData.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={categoryData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                                    <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} dy={10} tick={{ fontSize: 11 }} />
+                                    <YAxis stroke="#666" axisLine={false} tickLine={false} />
+                                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#FF9F1C', opacity: 0.05 }} />
+                                    <Bar dataKey="sales" name="Units Sold" fill="#FF9F1C" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-gray-500 text-sm">{loading ? 'Loading...' : 'No sales data yet.'}</div>
+                        )}
                     </div>
                 </div>
 
-                {/* Customer Growth Stacked Area */}
+                {/* Paid vs Unpaid orders */}
                 <div className="bg-[#1A1A1A] border border-white/5 rounded-xl p-6">
-                    <h3 className="text-white font-medium mb-6">Customer Growth Cohorts</h3>
+                    <h3 className="text-white font-medium mb-6">Paid vs Unpaid Orders</h3>
                     <div className="h-[250px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={customerGrowthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
-                                <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} dy={10} />
-                                <YAxis stroke="#666" axisLine={false} tickLine={false} />
-                                <Tooltip content={<CustomTooltip />} />
-                                <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px' }} />
-                                <Line type="monotone" name="New Customers" dataKey="new" stroke="#FF9F1C" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                                <Line type="monotone" name="Returning" dataKey="returning" stroke="#A78BFA" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
+                        {orders.length > 0 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={[{ name: 'Orders', Paid: paidOrders.length, Unpaid: orders.length - paidOrders.length }]}
+                                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#333" vertical={false} />
+                                    <XAxis dataKey="name" stroke="#666" axisLine={false} tickLine={false} dy={10} />
+                                    <YAxis stroke="#666" axisLine={false} tickLine={false} />
+                                    <Tooltip content={<CustomTooltip />} />
+                                    <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px' }} />
+                                    <Bar dataKey="Paid" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                                    <Bar dataKey="Unpaid" fill="#ef4444" radius={[4, 4, 0, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-gray-500 text-sm">{loading ? 'Loading...' : 'No data yet.'}</div>
+                        )}
                     </div>
                 </div>
-
             </div>
         </div>
     );

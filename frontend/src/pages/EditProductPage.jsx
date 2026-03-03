@@ -24,7 +24,13 @@ const EditProductPage = () => {
 
     const categories = ['Aromatherapy', 'Soy Wax', 'Pillar Candles', 'Scented Votives', 'Seasonal', 'Decorative'];
 
+    const isNew = id === 'new';
+
     useEffect(() => {
+        if (isNew) {
+            setLoading(false);
+            return;
+        }
         const fetchProduct = async () => {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/products/${id}`);
@@ -54,39 +60,43 @@ const EditProductPage = () => {
             }
         };
         fetchProduct();
-    }, [id, addToast]);
+    }, [id, isNew, addToast]);
 
     const submitHandler = async (e) => {
         e.preventDefault();
         setUpdating(true);
         try {
-            const res = await fetch(`${API_BASE_URL}/api/products/${id}`, {
-                method: 'PUT',
+            const url = isNew
+                ? `${API_BASE_URL}/api/products`
+                : `${API_BASE_URL}/api/products/${id}`;
+            const method = isNew ? 'POST' : 'PUT';
+
+            const res = await fetch(url, {
+                method,
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({
                     name,
-                    price,
+                    price: Number(price),
                     description,
                     image,
                     category,
-                    countInStock: stock,
+                    countInStock: Number(stock),
                 }),
             });
 
-            if (!res.ok) throw new Error(`Update Failed: ${res.status}`);
-
-            if (res.ok) {
-                addToast('Product Updated Successfully', 'success');
-                navigate('/admin');
-            } else {
-                addToast('Update Failed', 'error');
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.message || `Failed: ${res.status}`);
             }
+
+            addToast(isNew ? 'Product Created!' : 'Product Updated!', 'success');
+            navigate('/admin/products');
         } catch (error) {
             console.error(error);
-            addToast('An error occurred', 'error');
+            addToast(error.message || 'An error occurred', 'error');
         } finally {
             setUpdating(false);
         }
@@ -104,7 +114,9 @@ const EditProductPage = () => {
                 </button>
 
                 <div className="bg-white p-8 rounded-xl shadow-2xl border border-shadow/50">
-                    <h1 className="text-3xl font-bold text-brown mb-8 font-serif">Edit Product</h1>
+                    <h1 className="text-3xl font-bold text-brown mb-8 font-serif">
+                        {isNew ? 'Add New Product' : 'Edit Product'}
+                    </h1>
 
                     <form onSubmit={submitHandler} className="space-y-6">
 
@@ -225,7 +237,7 @@ const EditProductPage = () => {
                             disabled={updating}
                             className="w-full py-4 bg-flame text-white font-bold text-lg rounded-lg hover:bg-brown transition shadow-lg disabled:opacity-50"
                         >
-                            {updating ? 'Updating...' : 'Update Product'}
+                            {updating ? (isNew ? 'Creating...' : 'Updating...') : (isNew ? 'Create Product' : 'Update Product')}
                         </button>
 
                     </form>
