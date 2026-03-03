@@ -31,9 +31,13 @@ const CheckoutPage = () => {
         postalCode: '',
         country: ''
     });
+    const [fullName, setFullName] = useState('');
 
     // Sync variables from user profile when available
     React.useEffect(() => {
+        if (user) {
+            setFullName(prev => prev || user.name || '');
+        }
         if (user && user.addresses && user.addresses.length > 0) {
             setShippingAddress(prev => ({
                 ...prev,
@@ -224,6 +228,7 @@ const CheckoutPage = () => {
         animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } }
     };
 
+    // StepIndicator is non-interactive — safe as inline component (no state)
     const StepIndicator = ({ step, label }) => (
         <div className={`flex flex-col items-center w-1/3 ${step <= currentStep ? 'text-flame' : 'text-shadow'}`}>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold mb-1 ${step <= currentStep ? 'bg-flame text-white' : 'bg-beige border border-shadow'}`}>
@@ -233,7 +238,9 @@ const CheckoutPage = () => {
         </div>
     );
 
-    const ShippingForm = () => (
+    // Render functions — NOT components (no JSX tags, called inline)
+    // This prevents React from remounting on every keystroke
+    const renderShipping = () => (
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-4">
             <h2 className="text-2xl font-bold text-brown flex items-center space-x-2">{LocationIcon()} <span>Shipping Address</span></h2>
             <p className="text-charcoal/70 text-sm">Enter your shipping address below for delivery.</p>
@@ -261,7 +268,13 @@ const CheckoutPage = () => {
                 </div>
             )}
 
-            <input type="text" placeholder="Full Name" className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" />
+            <input
+                type="text"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={e => setFullName(e.target.value)}
+                className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary"
+            />
             <input name="address" value={shippingAddress.address} onChange={handleAddressChange} type="text" placeholder="Address Line 1" className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" required />
             <input name="city" value={shippingAddress.city} onChange={handleAddressChange} type="text" placeholder="City" className="w-full p-3 border border-shadow rounded-lg focus:ring-primary focus:border-primary" required />
             <div className="flex space-x-4">
@@ -281,7 +294,7 @@ const CheckoutPage = () => {
         </motion.div>
     );
 
-    const PaymentForm = () => (
+    const renderPayment = () => (
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-4">
             <h2 className="text-2xl font-bold text-brown flex items-center space-x-2">{PaymentIcon()} <span>Payment Method</span></h2>
             <p className="text-charcoal/70 text-sm">Your payment is processed securely via Razorpay. We never store your card details.</p>
@@ -318,7 +331,7 @@ const CheckoutPage = () => {
         </motion.div>
     );
 
-    const ReviewOrder = () => (
+    const renderReview = () => (
         <motion.div initial={{ x: 50, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration: 0.3 }} className="space-y-6">
             <h2 className="text-2xl font-bold text-brown">Review & Place Order</h2>
             <p className="text-charcoal/70 text-sm">Review your details carefully before placing the order.</p>
@@ -354,10 +367,10 @@ const CheckoutPage = () => {
 
     const renderFormContent = () => {
         switch (currentStep) {
-            case 1: return <ShippingForm />;
-            case 2: return <PaymentForm />;
-            case 3: return <ReviewOrder />;
-            default: return <ShippingForm />;
+            case 1: return renderShipping();
+            case 2: return renderPayment();
+            case 3: return renderReview();
+            default: return renderShipping();
         }
     };
 
