@@ -89,6 +89,8 @@ const adminRoutes = require('./routes/adminRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const landingRoutes = require('./routes/landingRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
+const aboutRoutes = require('./routes/aboutRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 const path = require('path');
 
 app.use('/api/auth', authRoutes);
@@ -98,6 +100,8 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/landing-config', landingRoutes);
 app.use('/api/collections', collectionRoutes);
+app.use('/api/about', aboutRoutes);
+app.use('/api/contact', contactRoutes);
 
 const uploadsPath = path.join(__dirname, '/uploads');
 app.use('/uploads', express.static(uploadsPath));

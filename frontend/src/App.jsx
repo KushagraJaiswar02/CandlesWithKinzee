@@ -14,6 +14,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegistrationPage';
 import CollectionPage from './pages/CollectionPage';
 import CollectionsPage from './pages/CollectionsPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
 import ProfilePage from './pages/AccountPage';
 import CheckoutPage from './pages/CheckOutpage';
 import NotFound from './pages/NotFound';
@@ -24,6 +26,8 @@ import DashboardOverview from './pages/admin/DashboardOverview';
 import AnalyticsView from './pages/admin/AnalyticsView';
 import OrdersManager from './pages/admin/OrdersManager';
 import ProductsManager from './pages/admin/ProductsManager';
+import AboutPageManager from './pages/admin/AboutPageManager';
+import ContactPageManager from './pages/admin/ContactPageManager';
 import LandingPageManager from './pages/admin/LandingPageManager';
 import CollectionsManager from './pages/admin/CollectionsManager';
 import CollectionEditor from './pages/admin/CollectionEditor';
@@ -51,6 +55,8 @@ function App() {
                 <Route path="/shop" element={<ProductListingPage />} />
                 <Route path="/collections" element={<CollectionsPage />} />
                 <Route path="/collection/:slug" element={<CollectionPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/contact" element={<ContactPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
@@ -79,6 +85,8 @@ function App() {
                 <Route path="customers" element={<ComingSoon title="Customers" />} />
                 <Route path="promotions" element={<ComingSoon title="Promotions" />} />
                 <Route path="landing-page" element={<LandingPageManager />} />
+                <Route path="about-page" element={<AboutPageManager />} />
+                <Route path="contact-page" element={<ContactPageManager />} />
                 <Route path="settings" element={<ComingSoon title="Settings" />} />
               </Route>
 

@@ -11,6 +11,8 @@ import {
     Tag,
     MonitorPlay,
     Settings,
+    FileText,
+    MessageSquare,
     LogOut,
     Menu,
     X
@@ -48,6 +50,8 @@ const SIDEBAR_GROUPS = [
         title: "Configuration",
         items: [
             { name: 'Landing Page', path: '/admin/landing-page', icon: MonitorPlay },
+            { name: 'About Page', path: '/admin/about-page', icon: FileText },
+            { name: 'Contact Page', path: '/admin/contact-page', icon: MessageSquare },
             { name: 'Settings', path: '/admin/settings', icon: Settings },
         ]
     }
