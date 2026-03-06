@@ -12,6 +12,8 @@ import ProductDetailPage from './pages/ProductDetails';
 import CartPage from './pages/CartPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegistrationPage';
+import CollectionPage from './pages/CollectionPage';
+import CollectionsPage from './pages/CollectionsPage';
 import ProfilePage from './pages/AccountPage';
 import CheckoutPage from './pages/CheckOutpage';
 import NotFound from './pages/NotFound';
@@ -23,6 +25,8 @@ import AnalyticsView from './pages/admin/AnalyticsView';
 import OrdersManager from './pages/admin/OrdersManager';
 import ProductsManager from './pages/admin/ProductsManager';
 import LandingPageManager from './pages/admin/LandingPageManager';
+import CollectionsManager from './pages/admin/CollectionsManager';
+import CollectionEditor from './pages/admin/CollectionEditor';
 import ComingSoon from './pages/admin/ComingSoon';
 
 // Providers & Protections
@@ -45,6 +49,8 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/shop" element={<ProductListingPage />} />
+                <Route path="/collections" element={<CollectionsPage />} />
+                <Route path="/collection/:slug" element={<CollectionPage />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
@@ -63,8 +69,12 @@ function App() {
                 <Route path="orders" element={<OrdersManager />} />
                 <Route path="products" element={<ProductsManager />} />
 
+                {/* New Collection Routes */}
+                <Route path="collections" element={<CollectionsManager />} />
+                <Route path="collections/new" element={<CollectionEditor />} />
+                <Route path="collections/:id/edit" element={<CollectionEditor />} />
+
                 {/* Unimplemented sidebar stubs */}
-                <Route path="collections" element={<ComingSoon title="Collections" />} />
                 <Route path="inventory" element={<ComingSoon title="Inventory" />} />
                 <Route path="customers" element={<ComingSoon title="Customers" />} />
                 <Route path="promotions" element={<ComingSoon title="Promotions" />} />

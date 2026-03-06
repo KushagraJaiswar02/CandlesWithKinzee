@@ -1,84 +1,69 @@
 /* eslint-disable */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-
-const categories = [
-    {
-        name: "Floral Aromas",
-        description: "Soft, romantic scents that evoke blooming gardens in spring.",
-        image: "https://images.unsplash.com/photo-1596433809252-260c27459d19?q=80&w=1964&auto=format&fit=crop",
-        link: "/shop?category=floral"
-    },
-    {
-        name: "Woody & Earthy",
-        description: "Grounding fragrances of cedar, sandalwood, and fresh pine.",
-        image: "https://images.unsplash.com/photo-1601379326920-5c4a5293dcb0?q=80&w=2070&auto=format&fit=crop",
-        link: "/shop?category=woody"
-    },
-    {
-        name: "Fresh & Citrus",
-        description: "Uplifting notes of bergamot, lemon, and ocean breeze.",
-        image: "https://images.unsplash.com/photo-1595425970377-c9703bc48baf?q=80&w=1974&auto=format&fit=crop",
-        link: "/shop?category=fresh"
-    }
-];
+import CollectionCard from '../CollectionCard.jsx';
+import API_BASE_URL from '../../config/api';
 
 const PopularCollection = () => {
+    const [collections, setCollections] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCollections = async () => {
+            try {
+                // Public endpoint automatically filters isActive and schedulers
+                const res = await fetch(`${API_BASE_URL}/api/collections`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setCollections(data.slice(0, 3)); // Show top 3 by priority weight on homepage
+                }
+            } catch (error) {
+                console.error("Failed to fetch featured collections", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCollections();
+    }, []);
+
+    if (loading || collections.length === 0) return null; // Hide section if no collections yet
+
     return (
-        <section className="bg-white py-24 px-6">
-            <div className="max-w-7xl mx-auto">
-                <div className="text-center max-w-2xl mx-auto mb-16">
-                    <motion.h2
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="text-4xl md:text-5xl font-serif text-charcoal mb-4"
-                    >
-                        Explore by Scent Profile
-                    </motion.h2>
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.1 }}
-                        className="text-charcoal/70 font-light text-[17px]"
-                    >
-                        Find the perfect mood for your space.
-                    </motion.p>
+        <section className="bg-white py-24 px-6 md:px-12">
+            <div className="max-w-[1400px] mx-auto">
+                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+                    <div className="max-w-2xl">
+                        <motion.h2
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="text-4xl md:text-5xl font-serif text-charcoal mb-4"
+                        >
+                            Curated Collections
+                        </motion.h2>
+                        <motion.p
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: 0.1 }}
+                            className="text-charcoal/70 font-light text-[17px]"
+                        >
+                            Discover the perfect mood carefully arranged for your spaces and seasons.
+                        </motion.p>
+                    </div>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
-                    {categories.map((category, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 hidden-scrollbar">
+                    {collections.map((collection, index) => (
                         <motion.div
-                            key={index}
+                            key={collection._id}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-50px" }}
                             transition={{ duration: 0.6, delay: index * 0.15 }}
-                            className="group relative h-[450px] md:h-[500px] w-full rounded-2xl overflow-hidden cursor-pointer"
                         >
-                            <img
-                                src={category.image}
-                                alt={category.name}
-                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent pointer-events-none transition-opacity duration-500 group-hover:from-charcoal/90"></div>
-
-                            <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                                <h3 className="text-2xl font-serif text-white mb-2 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                    {category.name}
-                                </h3>
-                                <p className="text-white/80 font-light text-[15px] mb-6 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-75">
-                                    {category.description}
-                                </p>
-                                <Link to={category.link} className="inline-flex w-max">
-                                    <span className="text-white text-[11px] font-bold uppercase tracking-widest border-b border-white/30 pb-1 hover:border-white transition-colors duration-300">
-                                        Explore Collection
-                                    </span>
-                                </Link>
-                            </div>
+                            <CollectionCard collection={collection} />
                         </motion.div>
                     ))}
                 </div>

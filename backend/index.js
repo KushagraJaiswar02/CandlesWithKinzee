@@ -42,8 +42,8 @@ app.use(express.json({ limit: '10kb' })); // Body parser + payload size guard
 // List all allowed origins here
 const allowedOrigins = [
     'https://candles-with-kinzee.vercel.app',
-    'http://localhost:5173',                  
-    /\.vercel\.app$/                          
+    'http://localhost:5173',
+    /\.vercel\.app$/
 ];
 
 const corsOptions = {
@@ -88,6 +88,7 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const uploadRoutes = require('./routes/uploadRoutes');
 const landingRoutes = require('./routes/landingRoutes');
+const collectionRoutes = require('./routes/collectionRoutes');
 const path = require('path');
 
 app.use('/api/auth', authRoutes);
@@ -96,6 +97,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/landing-config', landingRoutes);
+app.use('/api/collections', collectionRoutes);
 
 const uploadsPath = path.join(__dirname, '/uploads');
 app.use('/uploads', express.static(uploadsPath));
