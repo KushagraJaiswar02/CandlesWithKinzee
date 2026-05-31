@@ -6,8 +6,8 @@ const rateLimit = require('express-rate-limit');
  * 10 attempts per IP per 15 minutes.
  */
 const authLimiter = rateLimit({
-    windowMs: 60 * 1000, // 15 minutes
-    max: 100,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 10,
     message: { message: 'Too many attempts, please try again after 15 minutes.' },
     standardHeaders: true,
     legacyHeaders: false,
@@ -18,7 +18,7 @@ const authLimiter = rateLimit({
  * 100 requests per IP per 15 minutes.
  */
 const apiLimiter = rateLimit({
-    windowMs: 60 * 1000,
+    windowMs: 15 * 60 * 1000, // 15 minutes
     max: 100,
     message: { message: 'Too many requests, please slow down.' },
     standardHeaders: true,
@@ -30,8 +30,8 @@ const apiLimiter = rateLimit({
  * 20 order actions per IP per 15 minutes.
  */
 const orderLimiter = rateLimit({
-    windowMs: 60*1000,
-    max: 100,
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 20,
     message: { message: 'Too many order requests, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,

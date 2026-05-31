@@ -5,6 +5,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { getValidImageUrl } from '../utils/imageHelper';
 import { ShoppingCart, Star } from 'lucide-react';
+import { useCart } from '../context/CartContext';
 
 // --- Image Mapping Function ---
 const generatePlaceholderUrl = (name) => {
@@ -13,6 +14,7 @@ const generatePlaceholderUrl = (name) => {
 };
 
 export default function ProductCard({ product, view = 'grid' }) {
+    const { addToCart } = useCart();
     // Use robust helper for image URL
     let imageUrl = getValidImageUrl(product?.image);
     imageUrl = imageUrl || generatePlaceholderUrl(product?.name);
@@ -61,7 +63,7 @@ export default function ProductCard({ product, view = 'grid' }) {
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                console.log('Add to cart clicked');
+                                addToCart(product);
                             }}
                         >
                             <ShoppingCart size={16} /> Add to Cart
@@ -100,7 +102,7 @@ export default function ProductCard({ product, view = 'grid' }) {
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            console.log('Quick add clicked');
+                            addToCart(product);
                         }}
                     >
                         <ShoppingCart size={15} /> Quick Add

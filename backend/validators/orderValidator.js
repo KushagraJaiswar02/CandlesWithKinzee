@@ -8,10 +8,12 @@ const mongoId = z
 // ─── Add Order Items ──────────────────────────────────────────────────────────
 const orderItemSchema = z.object({
     product: mongoId,
-    name: z.string().trim().min(1).max(200),
-    quantity: z.number().int().positive(),   // matches OrderModel field name
+    quantity: z.number().int().min(1).max(100),
+    // Legacy clients may still send display-only fields. They are accepted for
+    // compatibility but ignored by backend pricing.
+    name: z.string().trim().min(1).max(200).optional(),
     image: z.string().trim().max(500).optional(),
-    price: z.number().positive(),
+    price: z.number().positive().optional(),
 });
 
 const shippingAddressSchema = z.object({
@@ -31,12 +33,16 @@ const addOrderItemsSchema = z.object({
         .array(orderItemSchema)
         .min(1, 'No order items'),
     shippingAddress: shippingAddressSchema,
-    paymentMethod: z.string().trim().min(1).max(50),
-    itemsPrice: z.number().nonnegative(),
-    taxPrice: z.number().nonnegative(),
-    shippingPrice: z.number().nonnegative(),
-    totalPrice: z.number().positive(),
-});
+    paymentMethod: z.string().trim().min(1).max(50).optional().default('Razorpay'),
+    couponCode: z.string().trim().max(50).optional(),
+    shippingMethod: z.string().trim().max(50).optional(),
+    // Deprecated monetary fields. Never use these for persistence or payment.
+    itemsPrice: z.number().nonnegative().optional(),
+    taxPrice: z.number().nonnegative().optional(),
+    shippingPrice: z.number().nonnegative().optional(),
+    discountAmount: z.number().nonnegative().optional(),
+    totalPrice: z.number().positive().optional(),
+}).strip();
 
 // ─── Verify Payment ───────────────────────────────────────────────────────────
 const verifyPaymentSchema = z.object({

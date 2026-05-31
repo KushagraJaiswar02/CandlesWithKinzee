@@ -10,7 +10,6 @@ import { useCart } from '../context/CartContext';
 import AuthContext from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import API_BASE_URL from '../config/api';
-import { getValidImageUrl } from '../utils/imageHelper';
 
 // Placeholder Icons
 const LockIcon = () => '🔒'; // For security
@@ -117,17 +116,10 @@ const CheckoutPage = () => {
                 body: JSON.stringify({
                     orderItems: cartItems.map((item) => ({
                         product: item._id,
-                        name: item.name,
-                        image: getValidImageUrl(item.image),
-                        price: item.price,
                         quantity: item.quantity,
                     })),
                     shippingAddress,
-                    paymentMethod: 'Razorpay',
-                    itemsPrice: subtotal,
-                    taxPrice: taxes,
-                    shippingPrice: shipping,
-                    totalPrice: total
+                    paymentMethod: 'Razorpay'
                 })
             });
 
@@ -285,7 +277,13 @@ const CheckoutPage = () => {
             <motion.button
                 type="button"
                 className="w-full py-3 bg-primary text-charcoal font-bold rounded-lg hover:bg-flame hover:text-white transition"
-                onClick={() => setCurrentStep(2)}
+                onClick={() => {
+                    if (!fullName || !shippingAddress.address || !shippingAddress.city || !shippingAddress.postalCode || !shippingAddress.country) {
+                        addToast('Please fill out all required shipping fields', 'error');
+                        return;
+                    }
+                    setCurrentStep(2);
+                }}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
             >

@@ -5,7 +5,7 @@ const orderSchema = mongoose.Schema({
     orderItems: [{
         name: { type: String, required: true },
         quantity: { type: Number, required: true },
-        image: { type: String, required: true },
+        image: { type: String, default: '' },
         price: { type: Number, required: true },
         product: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Product' }
     }],
@@ -20,7 +20,12 @@ const orderSchema = mongoose.Schema({
     razorpayPaymentId: { type: String, unique: true, sparse: true }, // For Deduplication & Audit
     paymentStatus: { type: String, default: 'Pending' }, // CREATED, ATTEMPTED, SUCCESS, FAILED
     gatewayResponse: { type: Object }, // Audit Trail
+    itemsPrice: { type: Number, required: true, default: 0.0 },
+    taxPrice: { type: Number, required: true, default: 0.0 },
+    shippingPrice: { type: Number, required: true, default: 0.0 },
+    discountAmount: { type: Number, required: true, default: 0.0 },
     totalPrice: { type: Number, required: true, default: 0.0 },
+    totalPricePaise: { type: Number, required: true, default: 0 },
     isPaid: { type: Boolean, required: true, default: false },
     paidAt: { type: Date },
     paymentVerifiedAt: { type: Date }, // Explicit timestamp for verification

@@ -7,7 +7,8 @@ const {
     getOrders,
     createRazorpayOrder,
     verifyPayment,
-    updateOrderStatus
+    updateOrderStatus,
+    handleRazorpayWebhook
 } = require('../controllers/orderController');
 const { protect, admin } = require('../middlewares/authMiddleware');
 const validate = require('../middlewares/validate');
@@ -24,6 +25,7 @@ router.route('/')
     .get(protect, admin, apiLimiter, getOrders);
 
 router.route('/myorders').get(protect, apiLimiter, getMyOrders);
+router.route('/webhook').post(apiLimiter, handleRazorpayWebhook);
 router.route('/pay/verify').post(protect, orderLimiter, validate(verifyPaymentSchema), verifyPayment);
 router.route('/pay/:id').post(protect, orderLimiter, validate(mongoIdParamSchema, 'params'), createRazorpayOrder);
 router.route('/:id/deliver').put(protect, admin, apiLimiter, validate(mongoIdParamSchema, 'params'), validate(updateOrderStatusSchema), updateOrderStatus);

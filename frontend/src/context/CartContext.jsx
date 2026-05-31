@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
+import AuthContext from './AuthContext';
 
 const CartContext = createContext();
 
@@ -11,35 +12,44 @@ export const CartProvider = ({ children }) => {
     });
 
     const { addToast } = useToast();
+    const { user } = useContext(AuthContext);
 
     useEffect(() => {
         localStorage.setItem('cart', JSON.stringify(cartItems));
     }, [cartItems]);
 
+    useEffect(() => {
+        const handleClearCart = () => setCartItems([]);
+        window.addEventListener('cart-clear', handleClearCart);
+        return () => window.removeEventListener('cart-clear', handleClearCart);
+    }, []);
+
     const addToCart = (product, quantity = 1) => {
-        setCartItems(prevItems => {
-            const existingItem = prevItems.find(item => item._id === product._id);
+        if (!user) {
+            addToast('Please log in to add items to your cart.', 'error');
+            return;
+        }
 
-            // Check if adding this quantity exceeds total stock
-            const currentQty = existingItem ? existingItem.quantity : 0;
-            if (currentQty + quantity > product.countInStock) {
-                addToast(`Sorry, only ${product.countInStock} items in stock`, 'error');
-                return prevItems; // Return unchanged
-            }
+        const existingItem = cartItems.find(item => item._id === product._id);
+        const currentQty = existingItem ? existingItem.quantity : 0;
 
-            if (existingItem) {
-                addToast(`${product.name} quantity updated in cart`, 'success');
-                return prevItems.map(item =>
-                    item._id === product._id
-                        ? { ...item, quantity: item.quantity + quantity }
-                        : item
-                );
-            }
+        // Check if adding this quantity exceeds total stock
+        if (currentQty + quantity > product.countInStock) {
+            addToast(`Sorry, only ${product.countInStock} items in stock`, 'error');
+            return;
+        }
 
+        if (existingItem) {
+            setCartItems(cartItems.map(item =>
+                item._id === product._id
+                    ? { ...item, quantity: item.quantity + quantity }
+                    : item
+            ));
+            addToast(`${product.name} quantity updated in cart`, 'success');
+        } else {
+            setCartItems([...cartItems, { ...product, quantity }]);
             addToast(`${product.name} added to cart`, 'success');
-            // Ensure we store the latest countInStock with the item
-            return [...prevItems, { ...product, quantity }];
-        });
+        }
     };
 
     const removeFromCart = (id) => {
@@ -50,19 +60,13 @@ export const CartProvider = ({ children }) => {
     const updateQuantity = (id, quantity) => {
         if (quantity < 1) return;
 
-        setCartItems(prevItems => {
-            return prevItems.map(item => {
-                if (item._id === id) {
-                    // Check stock limit
-                    if (quantity > item.countInStock) {
-                        addToast(`Cannot add more. Only ${item.countInStock} in stock.`, 'error');
-                        return item; // Return unchanged
-                    }
-                    return { ...item, quantity: quantity };
-                }
-                return item;
-            });
-        });
+        const item = cartItems.find(i => i._id === id);
+        if (item && quantity > item.countInStock) {
+            addToast(`Cannot add more. Only ${item.countInStock} in stock.`, 'error');
+            return; // Return unchanged
+        }
+
+        setCartItems(cartItems.map(i => i._id === id ? { ...i, quantity } : i));
     };
 
     const clearCart = () => {

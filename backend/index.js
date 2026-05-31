@@ -35,7 +35,12 @@ app.get('/', (req, res) => {
 });
 
 // Middleware
-app.use(express.json({ limit: '10kb' })); // Body parser + payload size guard
+app.use(express.json({
+    limit: '10kb',
+    verify: (req, res, buf) => {
+        req.rawBody = buf.toString();
+    }
+})); // Body parser + payload size guard + raw body capture for webhooks
 
 
 
@@ -116,7 +121,7 @@ app.use((err, req, res, next) => {
     });
 
     console.error('🔥 Server Error:', err.stack);
-    const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+    const statusCode = err.statusCode || (res.statusCode === 200 ? 500 : res.statusCode);
     res.status(statusCode);
     res.json({
         message: err.message,

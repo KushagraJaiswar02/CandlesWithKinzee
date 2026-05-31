@@ -9,3 +9,9 @@
     at async FindCursor.fetchBatch (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:666:13)
     at async FindCursor.next (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:342:17)
     at async [Symbol.asyncIterator] (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongodb\lib\cursor\abstract_cursor.js:250:34)
+[2026-03-06T18:48:49.481Z] ValidationError: User validation failed: addresses.0.street: Path `street` is required., addresses.0.city: Path `city` is required., addresses.0.postalCode: Path `postalCode` is required., addresses.0.country: Path `country` is required.
+    at Document.invalidate (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongoose\lib\document.js:3362:32)
+    at Subdocument.invalidate (C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongoose\lib\types\subdocument.js:257:12)
+    at C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongoose\lib\document.js:3123:17
+    at C:\PROJECTSPACE\WorkSpace\KindleLight\backend\node_modules\mongoose\lib\schemaType.js:1420:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:85:11)

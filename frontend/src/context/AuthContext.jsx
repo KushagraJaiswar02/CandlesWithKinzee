@@ -9,6 +9,8 @@ export const AuthProvider = ({ children }) => {
 
     const logout = useCallback(() => {
         localStorage.removeItem('userInfo');
+        localStorage.removeItem('cart');
+        window.dispatchEvent(new Event('cart-clear'));
         setUser(null);
     }, []);
 
